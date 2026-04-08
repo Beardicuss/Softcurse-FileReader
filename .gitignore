@@ -1,0 +1,41 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / build
+build/
+dist/
+bin/
+obj/
+
+# Installer output
+/installer_output/
+
+# Logs
+*.log
+
+# PyInstaller
+# Usually these are written by a python script, but we keep the spec file
+# unless it's purely temporary. I'll exclude the build folders.
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Project specific
+node_modules/
+.gemini/

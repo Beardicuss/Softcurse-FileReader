@@ -1,0 +1,1870 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOFTCURSE/SYS — FILE READER v1.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --c-bg: #020202;
+      --c-surface-01: rgba(5, 8, 16, 0.92);
+      --c-surface-02: rgba(8, 14, 28, 0.85);
+      --c-surface-03: rgba(12, 20, 40, 0.70);
+      --c-cyan: #00ffff;
+      --c-cyan-soft: #00ffc8;
+      --c-cyan-dim: rgba(0, 255, 255, 0.45);
+      --c-blue: #0088ff;
+      --c-orange: #ff6b35;
+      --c-magenta: #ff00ff;
+      --c-gold: #ffd700;
+      --c-green: #39ff14;
+      --c-text: #e8f4f8;
+      --c-text-secondary: rgba(232, 244, 248, 0.72);
+      --c-text-muted: rgba(232, 244, 248, 0.45);
+      --c-text-ghost: rgba(232, 244, 248, 0.28);
+      --c-border: rgba(0, 255, 255, 0.12);
+      --c-border-hover: rgba(0, 255, 255, 0.40);
+      --c-border-active: rgba(0, 255, 255, 0.70);
+      --glow-cyan: 0 0 12px rgba(0, 255, 255, 0.3), 0 0 40px rgba(0, 255, 255, 0.08);
+      --glow-cyan-lg: 0 0 24px rgba(0, 255, 255, 0.5), 0 0 80px rgba(0, 255, 255, 0.15);
+      --glow-orange: 0 0 12px rgba(255, 107, 53, 0.4), 0 0 40px rgba(255, 107, 53, 0.1);
+      --glow-magenta: 0 0 12px rgba(255, 0, 255, 0.4), 0 0 40px rgba(255, 0, 255, 0.1);
+      --glow-green: 0 0 12px rgba(57, 255, 20, 0.4), 0 0 40px rgba(57, 255, 20, 0.1);
+      --font-display: 'Orbitron', sans-serif;
+      --font-tactical: 'Rajdhani', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-body: 'Chakra Petch', sans-serif;
+      --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      cursor: none !important;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--c-bg);
+      color: var(--c-text);
+      font-family: var(--font-body);
+      user-select: none;
+    }
+
+    /* ── GRID BACKGROUND ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.012) 2px, rgba(255, 255, 255, 0.012) 4px);
+      background-size: 40px 40px, 40px 40px, 100% 4px;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0.022;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 256px 256px;
+      mix-blend-mode: overlay;
+    }
+
+    /* ── CUSTOM CURSOR ── */
+    #cursor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      will-change: left, top;
+      transform: translate(-6px, -5px);
+    }
+
+    #cursor svg {
+      overflow: visible;
+      filter: drop-shadow(0 0 4px #00c8e8) drop-shadow(0 0 12px #00c8e855);
+      transition: filter 0.1s ease;
+    }
+
+    body.clicking #cursor svg {
+      filter: drop-shadow(0 0 6px #39ff14) drop-shadow(0 0 18px #39ff1466);
+    }
+
+    #s-idle {
+      opacity: 1;
+      transition: opacity 0.2s;
+    }
+
+    #s-move {
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    #s-click {
+      opacity: 0;
+      transition: opacity 0.08s;
+    }
+
+    body.moving #s-idle {
+      opacity: 0;
+    }
+
+    body.moving #s-move {
+      opacity: 1;
+    }
+
+    body.moving #s-click {
+      opacity: 0;
+    }
+
+    body.clicking #s-idle {
+      opacity: 0;
+    }
+
+    body.clicking #s-move {
+      opacity: 0;
+    }
+
+    body.clicking #s-click {
+      opacity: 1;
+    }
+
+    /* ── LAYOUT ── */
+    #app {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* ── TITLEBAR ── */
+    #titlebar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 48px;
+      padding: 0 16px;
+      background: rgba(2, 4, 8, 0.96);
+      border-bottom: 1px solid var(--c-border);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 100;
+      -webkit-app-region: drag;
+    }
+
+    #titlebar::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.4), transparent);
+      animation: scan-h 4s linear infinite;
+    }
+
+    @keyframes scan-h {
+      0% {
+        opacity: 0.3;
+      }
+
+      50% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0.3;
+      }
+    }
+
+    #title-logo {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      color: var(--c-cyan);
+      text-shadow: var(--glow-cyan);
+      text-transform: uppercase;
+      -webkit-app-region: no-drag;
+    }
+
+    #title-status {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--c-text-muted);
+      letter-spacing: 0.06em;
+    }
+
+    .title-actions {
+      display: flex;
+      gap: 8px;
+      -webkit-app-region: no-drag;
+    }
+
+    .title-btn {
+      width: 32px;
+      height: 24px;
+      background: transparent;
+      border: 1px solid var(--c-border);
+      color: var(--c-text-muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: none;
+      transition: var(--transition);
+    }
+
+    .title-btn:hover {
+      border-color: var(--c-border-hover);
+      color: var(--c-cyan);
+      box-shadow: var(--glow-cyan);
+    }
+
+    /* ── TOOLBAR ── */
+    #toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 44px;
+      padding: 0 16px;
+      background: var(--c-surface-01);
+      border-bottom: 1px solid var(--c-border);
+      flex-shrink: 0;
+    }
+
+    .tool-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      height: 30px;
+      background: transparent;
+      border: 1px solid var(--c-border);
+      color: var(--c-text-secondary);
+      font-family: var(--font-tactical);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: none;
+      transition: var(--transition);
+    }
+
+    .tool-btn:hover {
+      border-color: var(--c-border-hover);
+      color: var(--c-cyan);
+      background: rgba(0, 255, 255, 0.04);
+      box-shadow: var(--glow-cyan);
+    }
+
+    .tool-btn.primary {
+      border-color: rgba(0, 255, 255, 0.4);
+      color: var(--c-cyan);
+      background: rgba(0, 255, 255, 0.06);
+    }
+
+    .tool-btn.primary:hover {
+      background: rgba(0, 255, 255, 0.12);
+      box-shadow: var(--glow-cyan-lg);
+    }
+
+    .tool-btn svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.5;
+    }
+
+    .toolbar-sep {
+      width: 1px;
+      height: 24px;
+      background: var(--c-border);
+      flex-shrink: 0;
+    }
+
+    .toolbar-spacer {
+      flex: 1;
+    }
+
+    #search-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      border: 1px solid var(--c-border);
+      background: rgba(0, 255, 255, 0.02);
+      height: 30px;
+      transition: var(--transition);
+    }
+
+    #search-wrap:focus-within {
+      border-color: var(--c-border-hover);
+      box-shadow: var(--glow-cyan);
+    }
+
+    #search-icon {
+      padding: 0 8px;
+      color: var(--c-text-ghost);
+    }
+
+    #search-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--c-text);
+      width: 180px;
+      caret-color: var(--c-cyan);
+    }
+
+    #search-input::placeholder {
+      color: var(--c-text-ghost);
+    }
+
+    /* ── TABS ── */
+    #tabs-bar {
+      display: flex;
+      align-items: flex-end;
+      gap: 0;
+      height: 36px;
+      padding: 0 16px 0 16px;
+      background: rgba(2, 4, 8, 0.8);
+      border-bottom: 1px solid var(--c-border);
+      flex-shrink: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+
+    #tabs-bar::-webkit-scrollbar {
+      height: 2px;
+    }
+
+    #tabs-bar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    #tabs-bar::-webkit-scrollbar-thumb {
+      background: rgba(0, 255, 255, 0.3);
+    }
+
+    .tab {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 14px;
+      height: 32px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-bottom: none;
+      color: var(--c-text-muted);
+      font-family: var(--font-tactical);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      cursor: none;
+      transition: var(--transition);
+      white-space: nowrap;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .tab:hover {
+      color: var(--c-text-secondary);
+      background: rgba(0, 255, 255, 0.03);
+    }
+
+    .tab.active {
+      color: var(--c-cyan);
+      background: var(--c-surface-01);
+      border-color: var(--c-border);
+      border-bottom-color: var(--c-surface-01);
+      text-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+    }
+
+    .tab.active::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--c-cyan);
+      box-shadow: var(--glow-cyan);
+    }
+
+    .tab-close {
+      width: 14px;
+      height: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 10px;
+      color: var(--c-text-ghost);
+      transition: var(--transition);
+    }
+
+    .tab-close:hover {
+      background: rgba(255, 0, 255, 0.2);
+      color: var(--c-magenta);
+    }
+
+    .tab-ext {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--c-orange);
+      background: rgba(255, 107, 53, 0.1);
+      padding: 1px 5px;
+      letter-spacing: 0.06em;
+      border: 1px solid rgba(255, 107, 53, 0.2);
+    }
+
+    /* ── MAIN AREA ── */
+    #main-area {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── SIDEBAR ── */
+    #sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--c-surface-01);
+      border-right: 1px solid var(--c-border);
+      display: flex;
+      flex-direction: column;
+      transition: var(--transition);
+    }
+
+    .sidebar-header {
+      padding: 12px 16px 8px;
+      border-bottom: 1px solid var(--c-border);
+    }
+
+    .sidebar-label {
+      font-family: var(--font-tactical);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--c-text-muted);
+    }
+
+    #file-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px 0;
+    }
+
+    #file-list::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    #file-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    #file-list::-webkit-scrollbar-thumb {
+      background: rgba(0, 255, 255, 0.2);
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 16px;
+      cursor: none;
+      transition: var(--transition);
+      border-left: 2px solid transparent;
+    }
+
+    .file-item:hover {
+      background: rgba(0, 255, 255, 0.04);
+      border-left-color: rgba(0, 255, 255, 0.2);
+    }
+
+    .file-item.active {
+      background: rgba(0, 255, 255, 0.07);
+      border-left-color: var(--c-cyan);
+    }
+
+    .file-item-icon {
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .file-item-name {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--c-text-secondary);
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .file-item.active .file-item-name {
+      color: var(--c-cyan);
+    }
+
+    .file-item-size {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--c-text-ghost);
+    }
+
+    .sidebar-section {
+      border-top: 1px solid var(--c-border);
+      padding: 12px 16px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .stat-label {
+      font-family: var(--font-tactical);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--c-text-ghost);
+    }
+
+    .stat-value {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--c-cyan-soft);
+    }
+
+    /* ── EDITOR AREA ── */
+    #editor-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── WELCOME SCREEN ── */
+    #welcome {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      padding: 40px;
+    }
+
+    .welcome-glow {
+      position: absolute;
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(0, 255, 200, 0.04) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .welcome-logo {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 4vw, 52px);
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--c-cyan);
+      text-shadow: 0 0 30px rgba(0, 255, 255, 0.5), 0 0 80px rgba(0, 255, 255, 0.15);
+      text-align: center;
+      position: relative;
+    }
+
+    .welcome-sub {
+      font-family: var(--font-tactical);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--c-text-muted);
+      text-align: center;
+    }
+
+    .welcome-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .welcome-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 28px;
+      background: rgba(0, 255, 255, 0.06);
+      border: 1px solid rgba(0, 255, 255, 0.35);
+      color: var(--c-cyan);
+      font-family: var(--font-tactical);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: none;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .welcome-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 255, 255, 0);
+      transition: var(--transition);
+    }
+
+    .welcome-btn:hover {
+      background: rgba(0, 255, 255, 0.12);
+      box-shadow: 0 0 24px rgba(0, 255, 255, 0.25), 0 0 60px rgba(0, 255, 255, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .welcome-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.5;
+    }
+
+    .welcome-formats {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--c-text-ghost);
+      text-align: center;
+      max-width: 600px;
+      line-height: 2;
+      letter-spacing: 0.04em;
+    }
+
+    .format-tag {
+      display: inline-block;
+      margin: 2px 3px;
+      padding: 1px 7px;
+      border: 1px solid rgba(0, 136, 255, 0.2);
+      color: var(--c-blue);
+      background: rgba(0, 136, 255, 0.06);
+      font-size: 10px;
+    }
+
+    /* ── DROP ZONE ── */
+    #drop-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(2, 2, 2, 0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    #drop-overlay.active {
+      display: flex;
+    }
+
+    .drop-box {
+      border: 2px dashed var(--c-cyan);
+      padding: 60px 80px;
+      text-align: center;
+      box-shadow: var(--glow-cyan-lg), inset 0 0 60px rgba(0, 255, 255, 0.03);
+      animation: drop-pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes drop-pulse {
+
+      0%,
+      100% {
+        box-shadow: var(--glow-cyan);
+      }
+
+      50% {
+        box-shadow: var(--glow-cyan-lg);
+      }
+    }
+
+    .drop-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      color: var(--c-cyan);
+      text-shadow: var(--glow-cyan);
+      text-transform: uppercase;
+    }
+
+    .drop-sub {
+      font-family: var(--font-tactical);
+      font-size: 14px;
+      color: var(--c-text-muted);
+      letter-spacing: 0.1em;
+      margin-top: 8px;
+    }
+
+    /* ── FILE VIEWER ── */
+    #file-viewer {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #file-viewer.active {
+      display: flex;
+    }
+
+    #file-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background: var(--c-surface-01);
+      border-bottom: 1px solid var(--c-border);
+      flex-shrink: 0;
+    }
+
+    .file-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .file-meta-name {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--c-cyan);
+    }
+
+    .file-meta-path {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--c-text-ghost);
+    }
+
+    .file-badge {
+      font-family: var(--font-tactical);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border: 1px solid;
+    }
+
+    .badge-text {
+      color: var(--c-cyan-soft);
+      border-color: rgba(0, 255, 200, 0.3);
+      background: rgba(0, 255, 200, 0.06);
+    }
+
+    .badge-code {
+      color: var(--c-orange);
+      border-color: rgba(255, 107, 53, 0.3);
+      background: rgba(255, 107, 53, 0.06);
+    }
+
+    .badge-data {
+      color: var(--c-blue);
+      border-color: rgba(0, 136, 255, 0.3);
+      background: rgba(0, 136, 255, 0.06);
+    }
+
+    .badge-doc {
+      color: var(--c-gold);
+      border-color: rgba(255, 215, 0, 0.3);
+      background: rgba(255, 215, 0, 0.05);
+    }
+
+    .badge-binary {
+      color: var(--c-magenta);
+      border-color: rgba(255, 0, 255, 0.3);
+      background: rgba(255, 0, 255, 0.06);
+    }
+
+    #content-wrap {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ── LINE NUMBERS ── */
+    #line-numbers {
+      width: 56px;
+      flex-shrink: 0;
+      padding: 16px 0;
+      background: rgba(2, 4, 8, 0.6);
+      border-right: 1px solid var(--c-border);
+      overflow: hidden;
+      user-select: none;
+      font-family: var(--font-mono), "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji";
+      font-size: 16px;
+      line-height: 1.7;
+      color: rgba(0, 255, 255, 0.2);
+      text-align: right;
+    }
+
+    .line-num {
+      padding-right: 12px;
+      display: block;
+    }
+
+    .line-num.active {
+      color: rgba(0, 255, 255, 0.6);
+    }
+
+    /* ── TEXT CONTENT ── */
+    #text-content {
+      flex: 1;
+      overflow: auto;
+      padding: 16px 24px;
+      font-family: var(--font-mono), "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji";
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--c-text);
+      white-space: pre-wrap;
+      word-break: normal;
+      overflow-wrap: anywhere;
+      tab-size: 4;
+      -moz-tab-size: 4;
+      caret-color: var(--c-cyan);
+      user-select: text;
+      cursor: text;
+    }
+
+    #text-content::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+
+    #text-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    #text-content::-webkit-scrollbar-thumb {
+      background: rgba(0, 255, 255, 0.2);
+    }
+
+    #text-content::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 255, 255, 0.4);
+    }
+
+    ::selection {
+      background: rgba(0, 255, 255, 0.15);
+      color: var(--c-cyan);
+    }
+
+    /* ── HIGHLIGHT CLASSES ── */
+    .hl-keyword {
+      color: #0088ff;
+    }
+
+    .hl-string {
+      color: #00ffc8;
+    }
+
+    .hl-comment {
+      color: rgba(0, 255, 255, 0.3);
+      font-style: italic;
+    }
+
+    .hl-number {
+      color: #ff9500;
+    }
+
+    .hl-function {
+      color: #ff6b35;
+    }
+
+    .hl-operator {
+      color: rgba(0, 255, 255, 0.7);
+    }
+
+    .hl-tag {
+      color: #0088ff;
+    }
+
+    .hl-attr {
+      color: #ffd700;
+    }
+
+    .hl-value {
+      color: #00ffc8;
+    }
+
+    .hl-bracket {
+      color: rgba(0, 255, 255, 0.5);
+    }
+
+    .hl-property {
+      color: #ff9500;
+    }
+
+    .hl-boolean {
+      color: #ff6b35;
+    }
+
+    .hl-null {
+      color: var(--c-magenta);
+    }
+
+    /* SEARCH HIGHLIGHTS */
+    .search-match {
+      background: rgba(255, 215, 0, 0.25);
+      color: var(--c-gold);
+      outline: 1px solid rgba(255, 215, 0, 0.4);
+    }
+
+    .search-match.current {
+      background: rgba(255, 107, 53, 0.35);
+      color: var(--c-orange);
+      outline-color: var(--c-orange);
+    }
+
+    /* ── STATUSBAR ── */
+    #statusbar {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      height: 28px;
+      padding: 0 16px;
+      background: rgba(0, 8, 16, 0.95);
+      border-top: 1px solid var(--c-border);
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .status-segment {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 12px;
+      border-right: 1px solid var(--c-border);
+      height: 100%;
+    }
+
+    .status-segment:first-child {
+      padding-left: 0;
+    }
+
+    .status-label {
+      font-family: var(--font-tactical);
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--c-text-ghost);
+    }
+
+    .status-value {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--c-cyan-soft);
+    }
+
+    .status-pulse {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--c-green);
+      box-shadow: var(--glow-green);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
+    }
+
+    .status-spacer {
+      flex: 1;
+    }
+
+    .blink-cursor {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--c-cyan);
+      animation: blink 0.8s step-end infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0;
+      }
+    }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed;
+      bottom: 40px;
+      right: 24px;
+      z-index: 90;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      background: var(--c-surface-01);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--c-border);
+      border-left: 3px solid var(--c-cyan);
+      font-family: var(--font-tactical);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--c-cyan);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #toast.error {
+      border-left-color: var(--c-magenta);
+      color: var(--c-magenta);
+    }
+
+    #toast.success {
+      border-left-color: var(--c-green);
+      color: var(--c-green);
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fade-up {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-up {
+      animation: fade-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes scan-sweep {
+      0% {
+        top: -2px;
+        opacity: 0;
+      }
+
+      10% {
+        opacity: 1;
+      }
+
+      90% {
+        opacity: 1;
+      }
+
+      100% {
+        top: 100%;
+        opacity: 0;
+      }
+    }
+
+    .scan-line-anim {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.4), rgba(0, 255, 255, 0.6), rgba(0, 255, 255, 0.4), transparent);
+      pointer-events: none;
+      animation: scan-sweep 6s linear infinite;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Cursor -->
+  <div id="cursor">
+    <svg width="40" height="38" viewBox="0 0 40 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation="1.5" result="b1" />
+          <feGaussianBlur stdDeviation="4" result="b2" />
+          <feMerge>
+            <feMergeNode in="b2" />
+            <feMergeNode in="b1" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <linearGradient id="ice" x1="6" y1="5" x2="26" y2="28" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#0d2e38" stop-opacity="0.72" />
+          <stop offset="45%" stop-color="#071418" stop-opacity="0.55" />
+          <stop offset="100%" stop-color="#000a0d" stop-opacity="0.38" />
+        </linearGradient>
+        <linearGradient id="sheen" x1="6" y1="5" x2="35" y2="11" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#a8f0f4" stop-opacity="0.18" />
+          <stop offset="40%" stop-color="#00c8e8" stop-opacity="0.06" />
+          <stop offset="100%" stop-color="#00c8e8" stop-opacity="0" />
+        </linearGradient>
+        <clipPath id="clip">
+          <polygon points="6,5 35,11 15,34" />
+        </clipPath>
+      </defs>
+
+      <polygon points="6,5 35,11 15,34" fill="url(#ice)" stroke="#00c8e8" stroke-width="1.4" stroke-linejoin="round"
+        filter="url(#glow)" />
+
+      <polygon points="6,5 35,11 15,34" fill="url(#sheen)" stroke="none" />
+
+      <polygon points="8,7 32,13 17,31" fill="none" stroke="#00c8e8" stroke-width="0.5" stroke-linejoin="round"
+        opacity="0.28" />
+
+      <line x1="8" y1="7" x2="3" y2="2" stroke="#00c8e8" stroke-width="1.2" stroke-linecap="round"
+        filter="url(#glow)" />
+      <line x1="11" y1="7" x2="14" y2="1" stroke="#00c8e8" stroke-width="1.2" stroke-linecap="round"
+        filter="url(#glow)" />
+      <line x1="6" y1="8" x2="12" y2="7" stroke="#00c8e8" stroke-width="0.8" stroke-linecap="round" opacity="0.55" />
+      <circle cx="3" cy="2" r="1" fill="#00c8e8" filter="url(#glow)">
+        <animate attributeName="opacity" values="1;0.2;1" dur="1.6s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="14" cy="1" r="1" fill="#00c8e8" filter="url(#glow)">
+        <animate attributeName="opacity" values="1;0.2;1" dur="1.6s" begin="0.5s" repeatCount="indefinite" />
+      </circle>
+
+      <line x1="9" y1="14" x2="6" y2="16" stroke="#00c8e8" stroke-width="1" stroke-linecap="round" opacity="0.65" />
+      <line x1="11" y1="22" x2="8" y2="23" stroke="#00c8e8" stroke-width="1" stroke-linecap="round" opacity="0.65" />
+
+      <line x1="21" y1="8" x2="23" y2="11" stroke="#00c8e8" stroke-width="1" stroke-linecap="round" opacity="0.65" />
+      <line x1="29" y1="10" x2="30" y2="13" stroke="#00c8e8" stroke-width="1" stroke-linecap="round" opacity="0.65" />
+
+      <circle cx="6" cy="5" r="1.6" fill="#00e8ff" filter="url(#glow)">
+        <animate attributeName="r" values="1.6;2.2;1.6" dur="2s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite" />
+      </circle>
+
+      <text id="s-idle" x="18" y="17" text-anchor="middle" dominant-baseline="middle" font-family="Orbitron, monospace"
+        font-size="10" font-weight="900" fill="#0d2a30" transform="rotate(-45, 18, 17)" clip-path="url(#clip)">S</text>
+
+      <text id="s-move" x="18" y="17" text-anchor="middle" dominant-baseline="middle" font-family="Orbitron, monospace"
+        font-size="10" font-weight="900" fill="#00e8ff" filter="url(#glow)" transform="rotate(-45, 18, 17)"
+        clip-path="url(#clip)">S</text>
+
+      <text id="s-click" x="18" y="17" text-anchor="middle" dominant-baseline="middle" font-family="Orbitron, monospace"
+        font-size="10" font-weight="900" fill="#39ff14" filter="url(#glow)" transform="rotate(-45, 18, 17)"
+        clip-path="url(#clip)">S</text>
+    </svg>
+  </div>
+
+  <!-- Drop Overlay -->
+  <div id="drop-overlay">
+    <div class="drop-box">
+      <div class="drop-title">◆ DROP FILES HERE</div>
+      <div class="drop-sub">Release to open in SOFTCURSE reader</div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast">
+    <span id="toast-msg">FILE LOADED</span>
+  </div>
+
+  <!-- App -->
+  <div id="app">
+    <!-- Titlebar -->
+    <div id="titlebar">
+      <div id="title-logo">◆ SOFTCURSE/SYS — FILE READER</div>
+      <div id="title-status">
+        <span id="status-clock">--:--:--</span> &nbsp;·&nbsp;
+        <span>BUILD v1.0.0</span>
+      </div>
+      <div class="title-actions">
+        <button class="title-btn" onclick="minimizeWindow()" title="Minimize">─</button>
+        <button class="title-btn" onclick="maximizeWindow()" title="Maximize">□</button>
+        <button class="title-btn" style="border-color:rgba(255,0,255,0.3);color:rgba(255,0,255,0.6);"
+          onclick="closeWindow()" title="Close">✕</button>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div id="toolbar">
+      <button class="tool-btn primary" onclick="openFileDialog()">
+        <svg viewBox="0 0 24 24">
+          <path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+        </svg>
+        OPEN FILE
+      </button>
+      <button class="tool-btn" onclick="openFolderDialog()">
+        <svg viewBox="0 0 24 24">
+          <path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+          <line x1="12" y1="11" x2="12" y2="17" />
+          <line x1="9" y1="14" x2="15" y2="14" />
+        </svg>
+        OPEN FOLDER
+      </button>
+      <div class="toolbar-sep"></div>
+      <button class="tool-btn" id="btn-wrap" onclick="toggleWrap()">
+        <svg viewBox="0 0 24 24">
+          <polyline points="4 7 4 4 20 4 20 7" />
+          <line x1="9" y1="20" x2="15" y2="20" />
+          <line x1="12" y1="4" x2="12" y2="20" />
+        </svg>
+        WRAP
+      </button>
+      <button class="tool-btn" id="btn-ln" onclick="toggleLineNumbers()"
+        style="border-color:rgba(0,255,255,0.3);color:var(--c-cyan);">
+        LN NUMS
+      </button>
+      <div class="toolbar-sep"></div>
+      <button class="tool-btn" onclick="copyContent()">
+        <svg viewBox="0 0 24 24">
+          <rect x="9" y="9" width="13" height="13" rx="0" />
+          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+        </svg>
+        COPY
+      </button>
+      <button class="tool-btn" onclick="closeCurrentTab()">
+        <svg viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+        CLOSE TAB
+      </button>
+      <div class="toolbar-spacer"></div>
+      <div id="search-wrap">
+        <span id="search-icon">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+        </span>
+        <input type="text" id="search-input" placeholder="SEARCH CONTENT..." autocomplete="off" spellcheck="false">
+      </div>
+      <button class="tool-btn" onclick="doSearch()" style="margin-left:4px;">◆ FIND</button>
+    </div>
+
+    <!-- Tabs -->
+    <div id="tabs-bar">
+      <!-- tabs injected here -->
+    </div>
+
+    <!-- Main -->
+    <div id="main-area">
+      <!-- Sidebar -->
+      <div id="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-label">◆ Open Files</div>
+        </div>
+        <div id="file-list"></div>
+        <div class="sidebar-section" id="file-stats">
+          <div class="stat-row"><span class="stat-label">Lines</span><span class="stat-value" id="stat-lines">—</span>
+          </div>
+          <div class="stat-row"><span class="stat-label">Chars</span><span class="stat-value" id="stat-chars">—</span>
+          </div>
+          <div class="stat-row"><span class="stat-label">Size</span><span class="stat-value" id="stat-size">—</span>
+          </div>
+          <div class="stat-row"><span class="stat-label">Encoding</span><span class="stat-value" id="stat-enc">—</span>
+          </div>
+          <div class="stat-row"><span class="stat-label">Type</span><span class="stat-value" id="stat-type">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Editor -->
+      <div id="editor-area">
+        <div class="scan-line-anim"></div>
+
+        <!-- Welcome -->
+        <div id="welcome" class="fade-up">
+          <div class="welcome-glow"></div>
+          <div class="welcome-logo">SOFTCURSE FILE READER</div>
+          <div class="welcome-sub">◆ UNIVERSAL TEXT FILE SYSTEM · v1.0.0 ◆</div>
+          <div class="welcome-actions">
+            <button class="welcome-btn" onclick="openFileDialog()">
+              <svg viewBox="0 0 24 24">
+                <path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+              </svg>
+              OPEN FILE
+            </button>
+            <button class="welcome-btn" onclick="openFolderDialog()"
+              style="border-color:rgba(0,136,255,0.35);color:var(--c-blue);background:rgba(0,136,255,0.06);">
+              <svg viewBox="0 0 24 24">
+                <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 2h9a2 2 0 012 2z" />
+              </svg>
+              OPEN FOLDER
+            </button>
+          </div>
+          <div
+            style="font-family:var(--font-tactical);font-size:11px;letter-spacing:0.15em;color:var(--c-text-ghost);text-transform:uppercase;">
+            Or drag & drop files anywhere — supports all text formats
+          </div>
+          <div class="welcome-formats">
+            <span class="format-tag">.txt</span><span class="format-tag">.md</span><span
+              class="format-tag">.py</span><span class="format-tag">.js</span><span class="format-tag">.ts</span><span
+              class="format-tag">.html</span><span class="format-tag">.css</span><span
+              class="format-tag">.json</span><span class="format-tag">.xml</span><span
+              class="format-tag">.yaml</span><span class="format-tag">.yml</span><span
+              class="format-tag">.csv</span><span class="format-tag">.tsv</span><span
+              class="format-tag">.sql</span><span class="format-tag">.sh</span><span class="format-tag">.bat</span><span
+              class="format-tag">.ps1</span><span class="format-tag">.java</span><span class="format-tag">.c</span><span
+              class="format-tag">.cpp</span><span class="format-tag">.h</span><span class="format-tag">.rs</span><span
+              class="format-tag">.go</span><span class="format-tag">.rb</span><span class="format-tag">.php</span><span
+              class="format-tag">.lua</span><span class="format-tag">.r</span><span class="format-tag">.tex</span><span
+              class="format-tag">.log</span><span class="format-tag">.ini</span><span
+              class="format-tag">.cfg</span><span class="format-tag">.conf</span><span
+              class="format-tag">.rtf</span><span class="format-tag">.adoc</span><span
+              class="format-tag">.rst</span><span class="format-tag">+ more</span>
+          </div>
+        </div>
+
+        <!-- File Viewer -->
+        <div id="file-viewer">
+          <div id="file-header">
+            <div class="file-meta">
+              <span class="file-meta-name" id="fh-name">—</span>
+              <span id="fh-badge" class="file-badge badge-text">TEXT</span>
+            </div>
+            <div class="file-meta-path" id="fh-path">—</div>
+          </div>
+          <div id="content-wrap">
+            <div id="line-numbers"></div>
+            <div id="text-content" contenteditable="false" spellcheck="false"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statusbar -->
+    <div id="statusbar">
+      <div class="status-segment">
+        <div class="status-pulse"></div>
+        <span class="status-label">SYS</span>
+        <span class="status-value">ONLINE</span>
+      </div>
+      <div class="status-segment">
+        <span class="status-label">FILE</span>
+        <span class="status-value" id="sb-file">NO FILE LOADED</span>
+      </div>
+      <div class="status-segment">
+        <span class="status-label">POS</span>
+        <span class="status-value" id="sb-pos">LN 0 : COL 0</span>
+      </div>
+      <div class="status-segment">
+        <span class="status-label">TABS</span>
+        <span class="status-value" id="sb-tabs">0</span>
+      </div>
+      <div class="status-segment">
+        <span class="status-label">MATCHES</span>
+        <span class="status-value" id="sb-matches">—</span>
+      </div>
+      <div class="status-spacer"></div>
+      <div class="status-segment">
+        <span class="status-label">SOFTCURSE/SYS</span>
+        <span class="blink-cursor">█</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── STATE ──
+    const state = {
+      tabs: [], // { id, name, path, ext, content, rawContent, wrap, type }
+      activeTab: null,
+      lineNumbers: true,
+      searchMatches: [],
+      currentMatch: -1,
+    };
+
+    // ── CURSOR ──
+    const cursor = document.getElementById('cursor');
+    let mx = 0, my = 0, cx = 0, cy = 0;
+    let moveTimer = null;
+
+    (function tick() {
+      cx += (mx - cx) * 0.22;
+      cy += (my - cy) * 0.22;
+      if (cursor) { cursor.style.left = cx + 'px'; cursor.style.top = cy + 'px'; }
+      requestAnimationFrame(tick);
+    })();
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      document.body.classList.add('moving');
+      document.body.classList.remove('clicking');
+      clearTimeout(moveTimer);
+      moveTimer = setTimeout(() => document.body.classList.remove('moving'), 150);
+    });
+
+    document.addEventListener('mousedown', () => document.body.classList.add('clicking'));
+    document.addEventListener('mouseup', () => document.body.classList.remove('clicking'));
+
+    // ── CLOCK ──
+    function updateClock() {
+      const n = new Date();
+      document.getElementById('status-clock').textContent = n.toTimeString().slice(0, 8);
+    }
+    setInterval(updateClock, 1000); updateClock();
+
+    // ── DRAG & DROP ──
+    const dropOv = document.getElementById('drop-overlay');
+    document.addEventListener('dragover', e => { e.preventDefault(); dropOv.classList.add('active'); });
+    document.addEventListener('dragleave', e => { if (!e.relatedTarget) dropOv.classList.remove('active'); });
+    document.addEventListener('drop', e => {
+      e.preventDefault(); dropOv.classList.remove('active');
+      const files = Array.from(e.dataTransfer.files);
+      files.forEach(f => readFileObject(f));
+    });
+
+    // ── FILE READING (browser File API) ──
+    function readFileObject(fileObj) {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const content = ev.target.result;
+        const name = fileObj.name;
+        const ext = name.includes('.') ? name.split('.').pop().toLowerCase() : 'txt';
+        addTab({ name, path: fileObj.path || name, ext, content });
+      };
+      reader.onerror = () => showToast('READ ERROR: ' + fileObj.name, 'error');
+      reader.readAsText(fileObj, 'UTF-8');
+    }
+
+    // ── PYTHON BRIDGE CALLS ──
+    function openFileDialog() {
+      if (window.pywebview) {
+        pywebview.api.open_file_dialog().then(result => {
+          if (result) result.forEach(r => addTab(r));
+        });
+      } else {
+        // fallback: html file input
+        const inp = document.createElement('input');
+        inp.type = 'file'; inp.multiple = true;
+        inp.accept = '*/*';
+        inp.onchange = () => Array.from(inp.files).forEach(f => readFileObject(f));
+        inp.click();
+      }
+    }
+    function openFolderDialog() {
+      if (window.pywebview) {
+        pywebview.api.open_folder_dialog().then(results => {
+          if (results) results.forEach(r => addTab(r));
+        });
+      } else {
+        const inp = document.createElement('input');
+        inp.type = 'file'; inp.webkitdirectory = true;
+        inp.onchange = () => Array.from(inp.files).forEach(f => readFileObject(f));
+        inp.click();
+      }
+    }
+    function minimizeWindow() { if (window.pywebview) pywebview.api.minimize(); }
+    function maximizeWindow() { if (window.pywebview) pywebview.api.maximize(); }
+    function closeWindow() { if (window.pywebview) pywebview.api.close_window(); }
+
+    // ── TAB MANAGEMENT ──
+    let tabIdCounter = 0;
+    function addTab({ name, path, ext, content }) {
+      const id = ++tabIdCounter;
+      const type = getFileType(ext);
+      const tab = { id, name, path, ext, content, rawContent: content, wrap: false, type };
+      state.tabs.push(tab);
+      renderTabs();
+      activateTab(id);
+      showToast('◆ LOADED: ' + name, 'success');
+    }
+
+    function activateTab(id) {
+      state.activeTab = id;
+      renderTabs();
+      const tab = state.tabs.find(t => t.id === id);
+      if (tab) renderContent(tab);
+      updateStatusbar();
+    }
+
+    function closeTab(id) {
+      const idx = state.tabs.findIndex(t => t.id === id);
+      state.tabs.splice(idx, 1);
+      if (state.activeTab === id) {
+        const next = state.tabs[Math.min(idx, state.tabs.length - 1)];
+        state.activeTab = next ? next.id : null;
+        if (next) renderContent(next);
+        else showWelcome();
+      }
+      renderTabs();
+      updateStatusbar();
+    }
+
+    function closeCurrentTab() {
+      if (state.activeTab) closeTab(state.activeTab);
+    }
+
+    function renderTabs() {
+      const bar = document.getElementById('tabs-bar');
+      bar.innerHTML = '';
+      state.tabs.forEach(tab => {
+        const el = document.createElement('div');
+        el.className = 'tab' + (tab.id === state.activeTab ? ' active' : '');
+        el.innerHTML = `<span class="tab-ext">.${tab.ext}</span><span style="max-width:120px;overflow:hidden;text-overflow:ellipsis;">${tab.name}</span><span class="tab-close" data-id="${tab.id}">✕</span>`;
+        el.addEventListener('click', e => {
+          if (e.target.classList.contains('tab-close')) { closeTab(tab.id); return; }
+          activateTab(tab.id);
+        });
+        bar.appendChild(el);
+      });
+      document.getElementById('sb-tabs').textContent = state.tabs.length;
+      updateFileList();
+    }
+
+    function updateFileList() {
+      const list = document.getElementById('file-list');
+      list.innerHTML = '';
+      const icons = { js: '⬡', py: '🐍', html: '◈', css: '◉', json: '{}', md: '◆', txt: '≡', xml: '<>', csv: '⊞', sql: '⊟', sh: '$', bat: '►', yaml: '⊙', yml: '⊙', ts: '⬡', java: '☕', c: '©', cpp: '±', rs: '⚙', go: '◎', rb: '◇', php: '⟨⟩', lua: '◑', r: 'Ⓡ', default: '◻' };
+      state.tabs.forEach(tab => {
+        const icon = icons[tab.ext] || icons.default;
+        const isActive = tab.id === state.activeTab;
+        const el = document.createElement('div');
+        el.className = 'file-item' + (isActive ? ' active' : '');
+        const size = formatSize(tab.rawContent.length);
+        el.innerHTML = `<span class="file-item-icon">${icon}</span><span class="file-item-name">${tab.name}</span><span class="file-item-size">${size}</span>`;
+        el.addEventListener('click', () => activateTab(tab.id));
+        list.appendChild(el);
+      });
+    }
+
+    // ── CONTENT RENDERING ──
+    function renderContent(tab) {
+      document.getElementById('welcome').style.display = 'none';
+      const viewer = document.getElementById('file-viewer');
+      viewer.classList.add('active');
+
+      document.getElementById('fh-name').textContent = tab.name;
+      document.getElementById('fh-path').textContent = tab.path;
+      const badge = document.getElementById('fh-badge');
+      const bm = { text: 'badge-text TEXT', code: 'badge-code CODE', data: 'badge-data DATA', doc: 'badge-doc DOC', config: 'badge-text CONFIG' };
+      const bv = bm[tab.type] || 'badge-text TEXT';
+      badge.className = 'file-badge ' + bv.split(' ')[0];
+      badge.textContent = bv.split(' ')[1];
+
+      const textEl = document.getElementById('text-content');
+      const highlighted = highlight(tab.rawContent, tab.ext);
+      textEl.innerHTML = highlighted;
+
+      renderLineNumbers(tab.rawContent);
+      updateFileStats(tab);
+
+      document.getElementById('sb-file').textContent = tab.name.toUpperCase();
+    }
+
+    function showWelcome() {
+      document.getElementById('welcome').style.display = 'flex';
+      document.getElementById('file-viewer').classList.remove('active');
+    }
+
+    // ── SYNTAX HIGHLIGHTING ──
+    function highlight(content, ext) {
+      const escaped = escapeHtml(content);
+      const codeExts = ['js', 'ts', 'jsx', 'tsx', 'py', 'java', 'c', 'cpp', 'h', 'cs', 'go', 'rs', 'rb', 'php', 'lua', 'pl', 'r', 'jl', 'm', 'kt', 'scala', 'swift'];
+      const dataExts = ['json', 'yaml', 'yml', 'xml', 'csv', 'tsv'];
+      const webExts = ['html', 'htm', 'xhtml', 'css', 'scss', 'sass'];
+      const shellExts = ['sh', 'bash', 'zsh', 'bat', 'ps1', 'cmd'];
+      const sqlExts = ['sql'];
+
+      let html = escaped;
+      if (codeExts.includes(ext)) html = highlightCode(escaped, ext);
+      else if (dataExts.includes(ext)) html = highlightData(escaped, ext);
+      else if (webExts.includes(ext)) html = highlightWeb(escaped, ext);
+      else if (shellExts.includes(ext)) html = highlightShell(escaped);
+      else if (sqlExts.includes(ext)) html = highlightSQL(escaped);
+
+      return parseAnsi(html);
+    }
+
+    function parseAnsi(text) {
+      text = text.replace(/\x1b\[[0-9;]*[ABCDA-Ksu]/g, ''); // strip positioning
+      const fg = { 30: 'var(--c-bg)', 31: 'var(--c-orange)', 32: 'var(--c-green)', 33: 'var(--c-gold)', 34: 'var(--c-blue)', 35: 'var(--c-magenta)', 36: 'var(--c-cyan)', 37: 'var(--c-text)', 90: 'var(--c-text-ghost)', 91: 'var(--c-orange)', 92: 'var(--c-green)', 93: 'var(--c-gold)', 94: 'var(--c-blue)', 95: 'var(--c-magenta)', 96: 'var(--c-cyan)', 97: 'white' };
+      const bg = { 40: 'var(--c-bg)', 41: 'var(--c-orange)', 42: 'var(--c-green)', 43: 'var(--c-gold)', 44: 'var(--c-blue)', 45: 'var(--c-magenta)', 46: 'var(--c-cyan)', 47: 'var(--c-text)', 100: 'var(--c-text-ghost)', 101: 'var(--c-orange)', 102: 'var(--c-green)', 103: 'var(--c-gold)', 104: 'var(--c-blue)', 105: 'var(--c-magenta)', 106: 'var(--c-cyan)', 107: 'white' };
+      let openSpans = 0;
+      let parsed = text.replace(/\x1b\[([0-9;]*)m/g, (match, codes) => {
+        if (!codes || codes === '0') {
+          let closings = '</span>'.repeat(openSpans); openSpans = 0; return closings;
+        }
+        let style = '';
+        const parts = codes.split(';');
+        for (let code of parts) {
+          if (code == '1') style += `font-weight: bold;`;
+          if (fg[code]) style += `color: ${fg[code]};`;
+          if (bg[code]) style += `background-color: ${bg[code]};`;
+        }
+        openSpans++;
+        return `<span style="${style}">`;
+      });
+      if (openSpans > 0) parsed += '</span>'.repeat(openSpans);
+      return parsed;
+    }
+
+    function escapeHtml(t) {
+      return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function highlightCode(t, ext) {
+      const kw = {
+        py: /\b(def|class|import|from|return|if|elif|else|for|while|in|not|and|or|try|except|finally|with|as|pass|break|continue|raise|yield|lambda|True|False|None|self|async|await)\b/g,
+        js: /\b(const|let|var|function|return|if|else|for|while|in|of|import|export|from|class|extends|new|this|async|await|try|catch|finally|throw|typeof|instanceof|null|undefined|true|false|=>|default|switch|case|break|continue)\b/g,
+        java: /\b(public|private|protected|class|interface|extends|implements|new|return|if|else|for|while|try|catch|finally|static|void|int|String|boolean|true|false|null|import|package|this|super)\b/g,
+        default: /\b(if|else|for|while|return|function|class|import|export|const|let|var|new|this|null|true|false|undefined)\b/g,
+      };
+      const kwRe = kw[ext] || kw.default;
+      return t
+        .replace(/(\/\/[^\n]*)/g, '<span class="hl-comment">$1</span>')
+        .replace(/(#[^\n]*)/g, '<span class="hl-comment">$1</span>')
+        .replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)/g, '<span class="hl-string">$1</span>')
+        .replace(/\b(\d+\.?\d*)\b/g, '<span class="hl-number">$1</span>')
+        .replace(kwRe, '<span class="hl-keyword">$1</span>')
+        .replace(/([a-zA-Z_]\w*)\s*(?=\()/g, '<span class="hl-function">$1</span>');
+    }
+
+    function highlightData(t, ext) {
+      if (ext === 'json') {
+        return t
+          .replace(/("(?:[^"\\]|\\.)*")\s*:/g, '<span class="hl-property">$1</span>:')
+          .replace(/:\s*("(?:[^"\\]|\\.)*")/g, ': <span class="hl-string">$1</span>')
+          .replace(/\b(\d+\.?\d*)\b/g, '<span class="hl-number">$1</span>')
+          .replace(/\b(true|false)\b/g, '<span class="hl-boolean">$1</span>')
+          .replace(/\bnull\b/g, '<span class="hl-null">null</span>')
+          .replace(/([{}\[\]])/g, '<span class="hl-bracket">$1</span>');
+      }
+      if (ext === 'xml') {
+        return t
+          .replace(/(&lt;\/?[a-zA-Z][^&gt;]*&gt;)/g, '<span class="hl-tag">$1</span>')
+          .replace(/([a-zA-Z-]+)=/g, '<span class="hl-attr">$1</span>=');
+      }
+      if (ext === 'yaml' || ext === 'yml') {
+        return t
+          .replace(/(^|\n)([a-zA-Z_][a-zA-Z0-9_-]*):/gm, '$1<span class="hl-property">$2</span>:')
+          .replace(/(#[^\n]*)/g, '<span class="hl-comment">$1</span>')
+          .replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, '<span class="hl-string">$1</span>');
+      }
+      return t;
+    }
+
+    function highlightWeb(t, ext) {
+      if (ext === 'css' || ext === 'scss') {
+        return t
+          .replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="hl-comment">$1</span>')
+          .replace(/([a-zA-Z-]+)\s*:/g, '<span class="hl-property">$1</span>:')
+          .replace(/(#[0-9a-fA-F]{3,8})/g, '<span class="hl-string">$1</span>')
+          .replace(/\b(\d+\.?\d*(?:px|em|rem|%|vh|vw|s|ms)?)\b/g, '<span class="hl-number">$1</span>');
+      }
+      return t
+        .replace(/(&lt;!--[\s\S]*?--&gt;)/g, '<span class="hl-comment">$1</span>')
+        .replace(/(&lt;\/?[a-zA-Z][^&gt;]*&gt;)/g, s => {
+          return s.replace(/([a-zA-Z-]+)=/g, '<span class="hl-attr">$1</span>=')
+            .replace(/&lt;\/?([a-zA-Z][a-zA-Z0-9]*)/, '&lt;<span class="hl-tag">$1</span>');
+        });
+    }
+
+    function highlightShell(t) {
+      return t
+        .replace(/(#[^\n]*)/g, '<span class="hl-comment">$1</span>')
+        .replace(/\b(if|else|fi|then|for|do|done|while|case|esac|in|function|return|exit|echo|cd|ls|mkdir|rm|cp|mv|cat|grep|awk|sed|export|source|set|unset)\b/g, '<span class="hl-keyword">$1</span>')
+        .replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, '<span class="hl-string">$1</span>')
+        .replace(/\$[a-zA-Z_]\w*/g, '<span class="hl-function">$&</span>');
+    }
+
+    function highlightSQL(t) {
+      return t
+        .replace(/(--[^\n]*)/g, '<span class="hl-comment">$1</span>')
+        .replace(/\b(SELECT|FROM|WHERE|JOIN|LEFT|RIGHT|INNER|OUTER|ON|AND|OR|NOT|INSERT|INTO|VALUES|UPDATE|SET|DELETE|CREATE|TABLE|DROP|ALTER|INDEX|VIEW|AS|DISTINCT|ORDER|BY|GROUP|HAVING|LIMIT|OFFSET|COUNT|SUM|AVG|MAX|MIN|CASE|WHEN|THEN|ELSE|END|NULL|IS|IN|LIKE|BETWEEN)\b/gi,
+          m => '<span class="hl-keyword">' + m.toUpperCase() + '</span>')
+        .replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, '<span class="hl-string">$1</span>')
+        .replace(/\b(\d+\.?\d*)\b/g, '<span class="hl-number">$1</span>');
+    }
+
+    // ── LINE NUMBERS ──
+    function renderLineNumbers(content) {
+      const ln = document.getElementById('line-numbers');
+      const lines = content.split('\n');
+      ln.innerHTML = lines.map((_, i) => `<span class="line-num">${i + 1}</span>`).join('');
+    }
+
+    function toggleLineNumbers() {
+      state.lineNumbers = !state.lineNumbers;
+      const ln = document.getElementById('line-numbers');
+      const btn = document.getElementById('btn-ln');
+      ln.style.display = state.lineNumbers ? '' : 'none';
+      btn.style.borderColor = state.lineNumbers ? 'rgba(0,255,255,0.3)' : '';
+      btn.style.color = state.lineNumbers ? 'var(--c-cyan)' : '';
+    }
+
+    function toggleWrap() {
+      const tc = document.getElementById('text-content');
+      const btn = document.getElementById('btn-wrap');
+      const isWrapped = tc.style.whiteSpace === 'pre-wrap' || tc.style.whiteSpace === '';
+      if (!isWrapped) {
+        tc.style.whiteSpace = 'pre-wrap';
+        btn.style.borderColor = 'rgba(0,255,255,0.3)'; btn.style.color = 'var(--c-cyan)';
+      } else {
+        tc.style.whiteSpace = 'pre';
+        btn.style.borderColor = ''; btn.style.color = '';
+      }
+    }
+
+    // ── SEARCH ──
+    document.getElementById('search-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doSearch();
+    });
+
+    function doSearch() {
+      const q = document.getElementById('search-input').value.trim();
+      const tc = document.getElementById('text-content');
+      // Clear previous
+      tc.innerHTML = tc.innerHTML.replace(/<mark[^>]*>/g, '').replace(/<\/mark>/g, '');
+
+      if (!q || !state.activeTab) { document.getElementById('sb-matches').textContent = '—'; return; }
+      const tab = state.tabs.find(t => t.id === state.activeTab);
+      if (!tab) return;
+
+      const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+      let highlighted = highlight(tab.rawContent, tab.ext);
+      let count = 0;
+      highlighted = highlighted.replace(re, m => { count++; return `<mark class="search-match">${m}</mark>`; });
+      tc.innerHTML = highlighted;
+      document.getElementById('sb-matches').textContent = count > 0 ? count + ' MATCH' + (count > 1 ? 'ES' : '') : 'NO MATCH';
+
+      if (count > 0) {
+        const first = tc.querySelector('.search-match');
+        if (first) first.scrollIntoView({ block: 'center' });
+        showToast('◆ ' + count + ' MATCH' + (count > 1 ? 'ES' : '') + ' FOUND');
+      } else {
+        showToast('NO MATCHES FOR: ' + q, 'error');
+      }
+    }
+
+    // ── STATS ──
+    function updateFileStats(tab) {
+      const lines = tab.rawContent.split('\n').length;
+      const chars = tab.rawContent.length;
+      document.getElementById('stat-lines').textContent = lines.toLocaleString();
+      document.getElementById('stat-chars').textContent = chars.toLocaleString();
+      document.getElementById('stat-size').textContent = formatSize(chars);
+      document.getElementById('stat-enc').textContent = 'UTF-8';
+      document.getElementById('stat-type').textContent = tab.type.toUpperCase();
+    }
+
+    function formatSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / 1048576).toFixed(2) + ' MB';
+    }
+
+    function getFileType(ext) {
+      const code = ['js', 'ts', 'jsx', 'tsx', 'py', 'java', 'c', 'cpp', 'h', 'cs', 'go', 'rs', 'rb', 'php', 'lua', 'pl', 'r', 'jl', 'm', 'kt', 'scala', 'swift', 'vb'];
+      const data = ['json', 'yaml', 'yml', 'xml', 'csv', 'tsv', 'dif'];
+      const web = ['html', 'htm', 'xhtml', 'css', 'scss', 'sass', 'asp', 'aspx', 'jsp'];
+      const shell = ['sh', 'bash', 'zsh', 'bat', 'ps1', 'cmd', 'ahk'];
+      const sql = ['sql'];
+      const cfg = ['ini', 'cfg', 'conf', 'env', 'properties', 'toml'];
+      const doc = ['md', 'markdown', 'rst', 'adoc', 'tex', 'ltx', 'rtf'];
+      if (code.includes(ext) || shell.includes(ext) || sql.includes(ext)) return 'code';
+      if (data.includes(ext)) return 'data';
+      if (web.includes(ext)) return 'code';
+      if (cfg.includes(ext)) return 'config';
+      if (doc.includes(ext)) return 'doc';
+      return 'text';
+    }
+
+    // ── COPY ──
+    function copyContent() {
+      const tab = state.tabs.find(t => t.id === state.activeTab);
+      if (!tab) return;
+      navigator.clipboard.writeText(tab.rawContent).then(() => showToast('◆ CONTENT COPIED', 'success'));
+    }
+
+    // ── STATUS ──
+    function updateStatusbar() {
+      document.getElementById('sb-tabs').textContent = state.tabs.length;
+    }
+
+    document.getElementById('text-content').addEventListener('click', e => {
+      const tc = document.getElementById('text-content');
+      const text = tc.innerText;
+      const sel = window.getSelection();
+      if (!sel.rangeCount) return;
+      // approximate line/col
+      const offset = sel.getRangeAt(0).startOffset;
+      const before = text.substring(0, offset);
+      const ln = (before.match(/\n/g) || []).length + 1;
+      const col = before.split('\n').pop().length + 1;
+      document.getElementById('sb-pos').textContent = `LN ${ln} : COL ${col}`;
+    });
+
+    // ── TOAST ──
+    function showToast(msg, type = '') {
+      const t = document.getElementById('toast');
+      document.getElementById('toast-msg').textContent = msg;
+      t.className = 'show' + (type ? ' ' + type : '');
+      setTimeout(() => { t.className = ''; }, 3000);
+    }
+
+    // ── PYWEBVIEW BRIDGE ──
+    window.addEventListener('pywebviewready', () => {
+      // Python side can call this to load a file directly
+      window.loadFileFromPython = function (fileData) {
+        addTab(fileData);
+      };
+    });
+
+    // Handle external file open (command line args via python)
+    window.openExternalFile = function (fileData) {
+      addTab(fileData);
+    };
+  </script>
+</body>
+
+</html>
