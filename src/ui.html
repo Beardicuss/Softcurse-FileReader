@@ -809,7 +809,8 @@
     .blink-cursor { font-family: var(--font-mono); font-size: 12px; color: var(--c-accent); animation: blink 0.8s step-end infinite; }
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-    #modal-jump {
+    /* MODALS & PANELS */
+    .modal-overlay {
       position: fixed;
       inset: 0;
       z-index: 300;
@@ -818,12 +819,12 @@
       align-items: center;
       justify-content: center;
     }
-    #modal-jump.active { display: flex; }
+    .modal-overlay.active { display: flex; }
     .modal-box {
       background: var(--c-surface-01);
       border: 1px solid var(--c-border);
       padding: 20px;
-      width: 320px;
+      width: 380px;
       box-shadow: var(--glow-accent-lg);
     }
     .modal-title { font-family: var(--font-display); font-size: 14px; color: var(--c-accent); margin-bottom: 12px; }
@@ -833,10 +834,10 @@
       border: 1px solid var(--c-border);
       color: var(--c-text);
       font-family: var(--font-mono);
-      font-size: 14px;
+      font-size: 13px;
       padding: 8px;
       outline: none;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     #toast {
@@ -911,13 +912,44 @@
   </div>
 
   <!-- Modal Jump to Line -->
-  <div id="modal-jump">
+  <div id="modal-jump" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-title">JUMP TO LINE</div>
       <input type="number" id="jump-line-input" class="modal-input" placeholder="Enter line number..." min="1">
       <div style="display:flex;justify-content:flex-end;gap:8px;">
         <button class="tool-btn" onclick="closeJumpModal()">CANCEL</button>
         <button class="tool-btn primary" onclick="executeJumpToLine()">JUMP</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Find & Replace -->
+  <div id="modal-replace" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-title">FIND & REPLACE</div>
+      <input type="text" id="replace-find-input" class="modal-input" placeholder="Find text...">
+      <input type="text" id="replace-with-input" class="modal-input" placeholder="Replace with...">
+      <div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;">
+        <button class="tool-btn" onclick="closeReplaceModal()">CANCEL</button>
+        <button class="tool-btn" onclick="executeReplaceNext()">REPLACE NEXT</button>
+        <button class="tool-btn primary" onclick="executeReplaceAll()">REPLACE ALL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Document Statistics -->
+  <div id="modal-stats" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-title">DOCUMENT STATISTICS</div>
+      <div style="font-family:var(--font-mono);font-size:12px;line-height:2;color:var(--c-text-secondary);margin-bottom:16px;">
+        <div>Lines: <span id="ds-lines" style="color:var(--c-accent)">0</span></div>
+        <div>Words: <span id="ds-words" style="color:var(--c-accent)">0</span></div>
+        <div>Chars (with spaces): <span id="ds-chars-all" style="color:var(--c-accent)">0</span></div>
+        <div>Chars (no spaces): <span id="ds-chars-nospace" style="color:var(--c-accent)">0</span></div>
+        <div>Est. Reading Time: <span id="ds-readtime" style="color:var(--c-accent)">0 min</span></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;">
+        <button class="tool-btn primary" onclick="closeStatsModal()">CLOSE</button>
       </div>
     </div>
   </div>
@@ -945,6 +977,7 @@
 
     <!-- Toolbar -->
     <div id="toolbar">
+      <button class="tool-btn primary" onclick="createNewBlankTab()">NEW (Ctrl+N)</button>
       <button class="tool-btn primary" onclick="openFileDialog()">
         <svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg>
         OPEN FILE
@@ -955,6 +988,7 @@
       </button>
       <button class="tool-btn primary" onclick="saveCurrentFile()" style="border-color:var(--c-green);color:var(--c-green);">SAVE (Ctrl+S)</button>
       <button class="tool-btn" onclick="saveCurrentFileAs()">SAVE AS...</button>
+      <button class="tool-btn" onclick="revertCurrentFile()">REVERT</button>
       <div class="toolbar-sep"></div>
       <button class="tool-btn" id="btn-wrap" onclick="toggleWrap()">WRAP</button>
       <button class="tool-btn active" id="btn-ln" onclick="toggleLineNumbers()">LN NUMS</button>
@@ -965,7 +999,9 @@
       <button class="tool-btn" onclick="zoomOut()">-</button>
       <button class="tool-btn" onclick="zoomReset()">100%</button>
       <div class="toolbar-sep"></div>
+      <button class="tool-btn" onclick="openReplaceModal()">REPLACE (Ctrl+R)</button>
       <button class="tool-btn" onclick="openJumpModal()">JUMP (Ctrl+G)</button>
+      <button class="tool-btn" onclick="openDocStatsModal()">STATS</button>
       <button class="tool-btn" onclick="copyContent()">COPY</button>
       <button class="tool-btn" onclick="closeCurrentTab()">CLOSE TAB</button>
       <div class="toolbar-spacer"></div>
@@ -1017,6 +1053,9 @@
           <div class="welcome-logo">SOFTCURSE FILE READER</div>
           <div class="welcome-sub">◆ UNIVERSAL TEXT FILE & EDITING SYSTEM · v1.0.0 ◆</div>
           <div class="welcome-actions">
+            <button class="welcome-btn" onclick="createNewBlankTab()">
+              NEW BLANK FILE
+            </button>
             <button class="welcome-btn" onclick="openFileDialog()">
               <svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg>
               OPEN FILE
@@ -1027,7 +1066,7 @@
             </button>
           </div>
           <div style="font-family:var(--font-tactical);font-size:11px;letter-spacing:0.15em;color:var(--c-text-ghost);text-transform:uppercase;">
-            Full editing, writing, fixing & saving capabilities built-in
+            Full editing, writing, fixing, find/replace & saving capabilities built-in
           </div>
           <div class="welcome-formats">
             <span class="format-tag">.txt</span><span class="format-tag">.md</span><span class="format-tag">.py</span><span class="format-tag">.js</span><span class="format-tag">.ts</span><span class="format-tag">.html</span><span class="format-tag">.css</span><span class="format-tag">.json</span><span class="format-tag">.xml</span><span class="format-tag">.yaml</span><span class="format-tag">.csv</span><span class="format-tag">.sql</span><span class="format-tag">.sh</span><span class="format-tag">.bat</span><span class="format-tag">.bin (hex)</span><span class="format-tag">+ 100 more</span>
@@ -1095,6 +1134,7 @@
       searchQuery: '',
       matchIndices: [],
       currentMatchIdx: -1,
+      untitledCounter: 0,
     };
 
     // ── CURSOR ──
@@ -1156,6 +1196,58 @@
       };
       reader.onerror = () => showToast('READ ERROR: ' + fileObj.name, 'error');
       reader.readAsText(fileObj, 'UTF-8');
+    }
+
+    // ── NEW FILE CREATION ──
+    function createNewBlankTab() {
+      state.untitledCounter++;
+      const name = `Untitled-${state.untitledCounter}.txt`;
+      if (window.pywebview) {
+        pywebview.api.create_new_file(name).then(fileData => addTab(fileData));
+      } else {
+        addTab({
+          name,
+          path: name,
+          ext: 'txt',
+          size: 0,
+          encoding: 'UTF-8',
+          is_binary: false,
+          content: '',
+          hex_dump: ''
+        });
+      }
+    }
+
+    // ── REVERT FILE ──
+    function revertCurrentFile() {
+      const tab = getCurrentTab();
+      if (!tab) return;
+      if (!tab.path || tab.path.startsWith('Untitled')) {
+        tab.rawContent = '';
+        tab.isDirty = false;
+        renderTabs();
+        renderContent(tab);
+        showToast('◆ RESET UNTITLED FILE', 'success');
+        return;
+      }
+
+      if (window.pywebview) {
+        pywebview.api.reload_file(tab.path).then(res => {
+          if (res) {
+            tab.rawContent = res.content;
+            tab.isDirty = false;
+            renderTabs();
+            renderContent(tab);
+            showToast('◆ REVERTED TO DISK FILE', 'success');
+          }
+        });
+      } else {
+        tab.rawContent = tab.content;
+        tab.isDirty = false;
+        renderTabs();
+        renderContent(tab);
+        showToast('◆ REVERTED TO INITIAL CONTENT', 'success');
+      }
     }
 
     // ── PYTHON BRIDGE CALLS ──
@@ -1400,7 +1492,6 @@
       document.getElementById('sb-file').textContent = (tab.name + dirtyTag).toUpperCase();
     }
 
-    // Throttle & Debounce text editing updates via requestAnimationFrame
     let inputFrameId = null;
     const textEl = document.getElementById('text-content');
     textEl.addEventListener('input', () => {
@@ -1526,6 +1617,7 @@
       showToast('THEME: ' + themeName.toUpperCase(), 'success');
     }
 
+    // ── MODAL HANDLERS ──
     function openJumpModal() {
       if (!getCurrentTab()) return;
       document.getElementById('modal-jump').classList.add('active');
@@ -1548,6 +1640,77 @@
       } else {
         showToast('LINE OUT OF RANGE', 'error');
       }
+    }
+
+    function openReplaceModal() {
+      if (!getCurrentTab()) return;
+      document.getElementById('modal-replace').classList.add('active');
+      const inp = document.getElementById('replace-find-input');
+      inp.value = document.getElementById('search-input').value;
+      inp.focus();
+    }
+    function closeReplaceModal() {
+      document.getElementById('modal-replace').classList.remove('active');
+    }
+    function executeReplaceNext() {
+      const tab = getCurrentTab();
+      if (!tab) return;
+      const findText = document.getElementById('replace-find-input').value;
+      const replaceText = document.getElementById('replace-with-input').value;
+      if (!findText) return;
+
+      const idx = tab.rawContent.indexOf(findText);
+      if (idx !== -1) {
+        tab.rawContent = tab.rawContent.substring(0, idx) + replaceText + tab.rawContent.substring(idx + findText.length);
+        tab.isDirty = true;
+        renderTabs();
+        renderContent(tab);
+        showToast('◆ REPLACED OCCURRENCE', 'success');
+      } else {
+        showToast('TEXT NOT FOUND', 'error');
+      }
+    }
+    function executeReplaceAll() {
+      const tab = getCurrentTab();
+      if (!tab) return;
+      const findText = document.getElementById('replace-find-input').value;
+      const replaceText = document.getElementById('replace-with-input').value;
+      if (!findText) return;
+
+      const re = new RegExp(findText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+      const matches = (tab.rawContent.match(re) || []).length;
+      if (matches > 0) {
+        tab.rawContent = tab.rawContent.replace(re, replaceText);
+        tab.isDirty = true;
+        renderTabs();
+        renderContent(tab);
+        showToast(`◆ REPLACED ${matches} OCCURRENCES`, 'success');
+        closeReplaceModal();
+      } else {
+        showToast('TEXT NOT FOUND', 'error');
+      }
+    }
+
+    function openDocStatsModal() {
+      const tab = getCurrentTab();
+      if (!tab) return;
+      const raw = tab.rawContent || '';
+      const lines = raw.split('\n').length;
+      const words = raw.trim() ? raw.trim().split(/\s+/).length : 0;
+      const charsAll = raw.length;
+      const charsNoSpace = raw.replace(/\s/g, '').length;
+      const readTime = Math.ceil(words / 200);
+
+      document.getElementById('ds-lines').textContent = lines.toLocaleString();
+      document.getElementById('ds-words').textContent = words.toLocaleString();
+      document.getElementById('ds-chars-all').textContent = charsAll.toLocaleString();
+      document.getElementById('ds-chars-nospace').textContent = charsNoSpace.toLocaleString();
+      document.getElementById('ds-readtime').textContent = readTime + ' min';
+
+      document.getElementById('modal-stats').classList.add('active');
+    }
+    function closeStatsModal() {
+      document.getElementById('modal-stats').classList.remove('active');
     }
 
     document.getElementById('search-input').addEventListener('keydown', e => {
@@ -1645,7 +1808,9 @@
 
     document.addEventListener('keydown', e => {
       if (e.ctrlKey || e.metaKey) {
-        if (e.shiftKey && (e.key === 's' || e.key === 'S')) { e.preventDefault(); saveCurrentFileAs(); }
+        if (e.key === 'n' || e.key === 'N') { e.preventDefault(); createNewBlankTab(); }
+        else if (e.key === 'r' || e.key === 'R') { e.preventDefault(); openReplaceModal(); }
+        else if (e.shiftKey && (e.key === 's' || e.key === 'S')) { e.preventDefault(); saveCurrentFileAs(); }
         else if (e.key === 's' || e.key === 'S') { e.preventDefault(); saveCurrentFile(); }
         else if (e.key === 'o' || e.key === 'O') { e.preventDefault(); openFileDialog(); }
         else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); document.getElementById('search-input').focus(); }
@@ -1658,6 +1823,8 @@
         else if (e.key === '0') { e.preventDefault(); zoomReset(); }
       } else if (e.key === 'Escape') {
         closeJumpModal();
+        closeReplaceModal();
+        closeStatsModal();
       }
     });
 

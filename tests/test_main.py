@@ -8,6 +8,7 @@ from src.main import (
     generate_hex_dump,
     build_file_data,
     write_file_content,
+    create_new_file_data,
     SoftcurseAPI,
 )
 
@@ -31,6 +32,26 @@ class TestMainBackend(unittest.TestCase):
         self.assertIn("00000000", dump)
         self.assertIn("SOFTCURSE.12345", dump)
         self.assertIn("53 4F 46 54 43 55 52 53", dump)
+
+    def test_create_new_file_data(self):
+        nf = create_new_file_data("Custom.py")
+        self.assertEqual(nf["name"], "Custom.py")
+        self.assertEqual(nf["ext"], "py")
+        self.assertEqual(nf["content"], "")
+        self.assertFalse(nf["is_binary"])
+
+    def test_reload_file_api(self):
+        with tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".txt") as tf:
+            tf.write("Initial line")
+            tf_path = tf.name
+
+        try:
+            api = SoftcurseAPI(None)
+            res = api.reload_file(tf_path)
+            self.assertEqual(res["content"], "Initial line")
+        finally:
+            if os.path.exists(tf_path):
+                os.remove(tf_path)
 
     def test_write_file_content(self):
         with tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".txt") as tf:

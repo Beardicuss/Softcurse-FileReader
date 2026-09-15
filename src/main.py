@@ -142,6 +142,20 @@ def write_file_content(path, content, encoding='utf-8'):
         return False, str(e)
 
 
+def create_new_file_data(filename='Untitled.txt'):
+    """Generate default file data dictionary for new blank documents."""
+    return {
+        'name': filename,
+        'path': filename,
+        'ext': get_file_ext(filename),
+        'size': 0,
+        'encoding': 'UTF-8',
+        'is_binary': False,
+        'content': '',
+        'hex_dump': '',
+    }
+
+
 def build_file_data(path):
     """Build a dict with file info for the frontend."""
     name = os.path.basename(path)
@@ -224,6 +238,14 @@ class SoftcurseAPI:
 
     def __init__(self, window_ref):
         self._window = window_ref
+
+    def create_new_file(self, filename='Untitled.txt'):
+        return create_new_file_data(filename)
+
+    def reload_file(self, path):
+        if path and os.path.exists(path):
+            return build_file_data(path)
+        return None
 
     def open_file_dialog(self):
         if not webview or not self._window:
@@ -340,6 +362,8 @@ def main():
     )
 
     api = SoftcurseAPI(window)
+    window.expose(api.create_new_file)
+    window.expose(api.reload_file)
     window.expose(api.open_file_dialog)
     window.expose(api.open_folder_dialog)
     window.expose(api.save_file)
