@@ -1089,7 +1089,7 @@
   <script>
     // ── STATE ──
     const state = {
-      tabs: [], // { id, name, path, ext, content, rawContent, hexDump, encoding, isBinary, isDirty, wrap, lineNumbers, isHexView, isMdView, type }
+      tabs: [],
       activeTab: null,
       fontSize: 14,
       searchQuery: '',
@@ -1206,7 +1206,6 @@
           }
         });
       } else {
-        // Fallback save via download blob
         const blob = new Blob([currentText], { type: 'text/plain;charset=utf-8' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
@@ -1278,12 +1277,16 @@
       showToast('◆ LOADED: ' + tab.name, 'success');
     }
 
-    function activateTab(id) {
-      state.activeTab = id;
+    function resetSearchState() {
       state.searchQuery = '';
       state.matchIndices = [];
       state.currentMatchIdx = -1;
       document.getElementById('sb-matches').textContent = '—';
+    }
+
+    function activateTab(id) {
+      state.activeTab = id;
+      resetSearchState();
       renderTabs();
       const tab = getCurrentTab();
       if (tab) renderContent(tab);
@@ -1300,6 +1303,7 @@
         if (next) renderContent(next);
         else showWelcome();
       }
+      resetSearchState();
       renderTabs();
       updateStatusbar();
     }
@@ -1396,49 +1400,31 @@
       document.getElementById('sb-file').textContent = (tab.name + dirtyTag).toUpperCase();
     }
 
-    // Listen for edits in text content
+    // Throttle & Debounce text editing updates via requestAnimationFrame
+    let inputFrameId = null;
     const textEl = document.getElementById('text-content');
     textEl.addEventListener('input', () => {
       const tab = getCurrentTab();
       if (!tab || tab.isHexView || tab.isMdView) return;
-      const newText = textEl.innerText;
-      if (newText !== tab.rawContent) {
-        tab.rawContent = newText;
-        if (!tab.isDirty) {
-          tab.isDirty = true;
-          renderTabs();
+
+      if (inputFrameId) cancelAnimationFrame(inputFrameId);
+      inputFrameId = requestAnimationFrame(() => {
+        const newText = textEl.innerText;
+        if (newText !== tab.rawContent) {
+          tab.rawContent = newText;
+          if (!tab.isDirty) {
+            tab.isDirty = true;
+            renderTabs();
+          }
+          renderLineNumbers(newText);
+          updateFileStats(tab);
         }
-        renderLineNumbers(newText);
-        updateFileStats(tab);
-      }
+      });
     });
 
     function showWelcome() {
       document.getElementById('welcome').style.display = 'flex';
       document.getElementById('file-viewer').classList.remove('active');
-    }
-
-    function parseAnsi(text) {
-      text = text.replace(/\x1b\[[0-9;]*[ABCDA-Ksu]/g, '');
-      const fg = { 30: 'var(--c-bg)', 31: 'var(--c-orange)', 32: 'var(--c-green)', 33: 'var(--c-gold)', 34: 'var(--c-blue)', 35: 'var(--c-magenta)', 36: 'var(--c-cyan)', 37: 'var(--c-text)', 90: 'var(--c-text-ghost)', 91: 'var(--c-orange)', 92: 'var(--c-green)', 93: 'var(--c-gold)', 94: 'var(--c-blue)', 95: 'var(--c-magenta)', 96: 'var(--c-cyan)', 97: 'white' };
-      const bg = { 40: 'var(--c-bg)', 41: 'var(--c-orange)', 42: 'var(--c-green)', 43: 'var(--c-gold)', 44: 'var(--c-blue)', 45: 'var(--c-magenta)', 46: 'var(--c-cyan)', 47: 'var(--c-text)', 100: 'var(--c-text-ghost)', 101: 'var(--c-orange)', 102: 'var(--c-green)', 103: 'var(--c-gold)', 104: 'var(--c-blue)', 105: 'var(--c-magenta)', 106: 'var(--c-cyan)', 107: 'white' };
-      let openSpans = 0;
-      let parsed = text.replace(/\x1b\[([0-9;]*)m/g, (match, codes) => {
-        if (!codes || codes === '0') {
-          let closings = '</span>'.repeat(openSpans); openSpans = 0; return closings;
-        }
-        let style = '';
-        const parts = codes.split(';');
-        for (let code of parts) {
-          if (code == '1') style += `font-weight: bold;`;
-          if (fg[code]) style += `color: ${fg[code]};`;
-          if (bg[code]) style += `background-color: ${bg[code]};`;
-        }
-        openSpans++;
-        return `<span style="${style}">`;
-      });
-      if (openSpans > 0) parsed += '</span>'.repeat(openSpans);
-      return parsed;
     }
 
     function renderSimpleMarkdown(text) {

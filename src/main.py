@@ -95,23 +95,34 @@ def is_binary_data(sample_bytes):
     return (non_text / len(sample_bytes)) > 0.30
 
 
+HEX_LOOKUP = [f'{b:02X}' for b in range(256)]
+ASCII_LOOKUP = [chr(b) if 32 <= b <= 126 else '.' for b in range(256)]
+
 def generate_hex_dump(data_bytes):
-    """Format raw bytes into a canonical hex dump string."""
+    """Format raw bytes into a canonical hex dump string (optimized with lookups)."""
     lines = []
     length = len(data_bytes)
     for i in range(0, length, 16):
         chunk = data_bytes[i:i + 16]
-        hex_bytes_left = ' '.join(f'{b:02X}' for b in chunk[:8])
-        hex_bytes_right = ' '.join(f'{b:02X}' for b in chunk[8:])
-        hex_part = f'{hex_bytes_left:<23}  {hex_bytes_right:<23}'
-        ascii_part = ''.join(chr(b) if 32 <= b <= 126 else '.' for b in chunk)
+        left = ' '.join(HEX_LOOKUP[b] for b in chunk[:8])
+        right = ' '.join(HEX_LOOKUP[b] for b in chunk[8:])
+        hex_part = f'{left:<23}  {right:<23}'
+        ascii_part = ''.join(ASCII_LOOKUP[b] for b in chunk)
         lines.append(f'{i:08X}  {hex_part:<48}  |{ascii_part}|')
     return '\n'.join(lines)
 
 
 def read_text_file(path):
-    """Try reading a file with multiple encodings."""
-    encodings = ['utf-8', 'utf-8-sig', 'cp437', 'utf-16', 'latin-1', 'cp1252', 'ascii']
+    """Try reading a file with multiple encodings starting with UTF-8 fast-path."""
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            return f.read(), 'utf-8'
+    except UnicodeDecodeError:
+        pass
+    except Exception:
+        return None, None
+
+    encodings = ['utf-8-sig', 'cp437', 'utf-16', 'latin-1', 'cp1252', 'ascii']
     for enc in encodings:
         try:
             with open(path, 'r', encoding=enc, errors='replace') as f:
