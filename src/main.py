@@ -7,7 +7,11 @@ import os
 import sys
 import json
 import threading
-import webview
+
+try:
+    import webview
+except ImportError:
+    webview = None
 
 # ── SUPPORTED EXTENSIONS ──
 TEXT_EXTENSIONS = {
@@ -70,12 +74,40 @@ TEXT_EXTENSIONS = {
 }
 
 MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB
+MAX_HEX_BYTES = 256 * 1024        # 256 KB limit for hex view generation
+
 
 def get_file_ext(path):
     name = os.path.basename(path)
     if '.' in name:
         return name.rsplit('.', 1)[-1].lower()
     return name.lower()
+
+
+def is_binary_data(sample_bytes):
+    """Check if byte sample appears to be binary data."""
+    if not sample_bytes:
+        return False
+    if b'\x00' in sample_bytes:
+        return True
+    # Count non-text printable ascii/control bytes
+    text_chars = bytearray({7, 8, 9, 10, 12, 13, 27} | set(range(0x20, 0x100)) - {0x7f})
+    non_text = sum(1 for b in sample_bytes if b not in text_chars)
+    return (non_text / len(sample_bytes)) > 0.30
+
+
+def generate_hex_dump(data_bytes):
+    """Format raw bytes into a canonical hex dump string."""
+    lines = []
+    length = len(data_bytes)
+    for i in range(0, length, 16):
+        chunk = data_bytes[i:i + 16]
+        hex_bytes_left = ' '.join(f'{b:02X}' for b in chunk[:8])
+        hex_bytes_right = ' '.join(f'{b:02X}' for b in chunk[8:])
+        hex_part = f'{hex_bytes_left:<23}  {hex_bytes_right:<23}'
+        ascii_part = ''.join(chr(b) if 32 <= b <= 126 else '.' for b in chunk)
+        lines.append(f'{i:08X}  {hex_part:<48}  |{ascii_part}|')
+    return '\n'.join(lines)
 
 
 def read_text_file(path):
@@ -98,17 +130,74 @@ def build_file_data(path):
 
     if size > MAX_FILE_SIZE:
         return {
-            'name': name, 'path': path, 'ext': ext,
-            'content': f'[FILE TOO LARGE — {size // 1048576} MB — Max 50 MB]\n\nUse an external tool to view large files.',
+            'name': name,
+            'path': path,
+            'ext': ext,
+            'size': size,
+            'encoding': 'N/A',
+            'is_binary': False,
+            'content': f'[FILE TOO LARGE — {size // 1048576} MB — Max limit 50 MB]\n\nUse an external tool to view large files.',
+            'hex_dump': '',
+        }
+
+    # Inspect raw sample for binary detection
+    try:
+        with open(path, 'rb') as f:
+            raw_sample = f.read(8192)
+            f.seek(0)
+            full_raw = f.read(MAX_HEX_BYTES)
+    except Exception as e:
+        return {
+            'name': name,
+            'path': path,
+            'ext': ext,
+            'size': size,
+            'encoding': 'N/A',
+            'is_binary': False,
+            'content': f'[ERROR READING FILE: {e}]',
+            'hex_dump': '',
+        }
+
+    is_bin = is_binary_data(raw_sample)
+    hex_dump = generate_hex_dump(full_raw)
+    if len(full_raw) < size:
+        hex_dump += f'\n\n[HEX VIEW TRUNCATED AT {MAX_HEX_BYTES // 1024} KB — FILE SIZE: {size} BYTES]'
+
+    if is_bin:
+        return {
+            'name': name,
+            'path': path,
+            'ext': ext,
+            'size': size,
+            'encoding': 'BINARY',
+            'is_binary': True,
+            'content': f'[BINARY FILE — Displaying Hex View]\n\n{hex_dump}',
+            'hex_dump': hex_dump,
         }
 
     content, enc = read_text_file(path)
     if content is None:
         return {
-            'name': name, 'path': path, 'ext': ext,
-            'content': '[BINARY FILE — Cannot display as text]',
+            'name': name,
+            'path': path,
+            'ext': ext,
+            'size': size,
+            'encoding': 'BINARY',
+            'is_binary': True,
+            'content': f'[BINARY FILE — Cannot display as text]\n\n{hex_dump}',
+            'hex_dump': hex_dump,
         }
-    return {'name': name, 'path': path, 'ext': ext, 'content': content}
+
+    return {
+        'name': name,
+        'path': path,
+        'ext': ext,
+        'size': size,
+        'encoding': enc.upper() if enc else 'UTF-8',
+        'is_binary': False,
+        'content': content,
+        'hex_dump': hex_dump,
+    }
 
 
 class SoftcurseAPI:
@@ -118,6 +207,8 @@ class SoftcurseAPI:
         self._window = window_ref
 
     def open_file_dialog(self):
+        if not webview or not self._window:
+            return []
         file_types = (
             'Text Files (*.txt;*.md;*.py;*.js;*.ts;*.html;*.css;*.json;*.xml;*.yaml;*.yml;*.csv;*.tsv;*.sql;*.sh;*.bat;*.java;*.c;*.cpp;*.h;*.rs;*.go;*.rb;*.php;*.lua;*.r;*.ini;*.cfg;*.conf;*.log;*.tex;*.rst;*.adoc;*.env;*.toml;*.graphql;*.proto;*.diff;*.patch)',
             'All Files (*.*)',
@@ -136,6 +227,8 @@ class SoftcurseAPI:
         return results
 
     def open_folder_dialog(self):
+        if not webview or not self._window:
+            return []
         paths = self._window.create_file_dialog(webview.FOLDER_DIALOG)
         if not paths:
             return []
@@ -155,13 +248,16 @@ class SoftcurseAPI:
         return results[:50]  # limit to 50 files per folder
 
     def minimize(self):
-        self._window.minimize()
+        if self._window:
+            self._window.minimize()
 
     def maximize(self):
-        self._window.toggle_fullscreen()
+        if self._window:
+            self._window.toggle_fullscreen()
 
     def close_window(self):
-        self._window.destroy()
+        if self._window:
+            self._window.destroy()
 
 
 def get_html_path():
@@ -186,6 +282,10 @@ def load_cli_files(window, paths):
 
 
 def main():
+    if not webview:
+        print("Error: pywebview is not installed.")
+        sys.exit(1)
+
     html_path = get_html_path()
     
     # Create the window first so we can bind the API

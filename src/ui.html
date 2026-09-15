@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="cyan">
 
 <head>
   <meta charset="UTF-8">
@@ -15,9 +15,11 @@
       --c-surface-01: rgba(5, 8, 16, 0.92);
       --c-surface-02: rgba(8, 14, 28, 0.85);
       --c-surface-03: rgba(12, 20, 40, 0.70);
+      --c-accent: #00ffff;
+      --c-accent-soft: #00ffc8;
+      --c-accent-dim: rgba(0, 255, 255, 0.45);
       --c-cyan: #00ffff;
       --c-cyan-soft: #00ffc8;
-      --c-cyan-dim: rgba(0, 255, 255, 0.45);
       --c-blue: #0088ff;
       --c-orange: #ff6b35;
       --c-magenta: #ff00ff;
@@ -30,16 +32,46 @@
       --c-border: rgba(0, 255, 255, 0.12);
       --c-border-hover: rgba(0, 255, 255, 0.40);
       --c-border-active: rgba(0, 255, 255, 0.70);
-      --glow-cyan: 0 0 12px rgba(0, 255, 255, 0.3), 0 0 40px rgba(0, 255, 255, 0.08);
-      --glow-cyan-lg: 0 0 24px rgba(0, 255, 255, 0.5), 0 0 80px rgba(0, 255, 255, 0.15);
-      --glow-orange: 0 0 12px rgba(255, 107, 53, 0.4), 0 0 40px rgba(255, 107, 53, 0.1);
-      --glow-magenta: 0 0 12px rgba(255, 0, 255, 0.4), 0 0 40px rgba(255, 0, 255, 0.1);
-      --glow-green: 0 0 12px rgba(57, 255, 20, 0.4), 0 0 40px rgba(57, 255, 20, 0.1);
+      --glow-accent: 0 0 12px rgba(0, 255, 255, 0.3), 0 0 40px rgba(0, 255, 255, 0.08);
+      --glow-accent-lg: 0 0 24px rgba(0, 255, 255, 0.5), 0 0 80px rgba(0, 255, 255, 0.15);
       --font-display: 'Orbitron', sans-serif;
       --font-tactical: 'Rajdhani', sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
       --font-body: 'Chakra Petch', sans-serif;
       --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    html[data-theme="magenta"] {
+      --c-accent: #ff00ff;
+      --c-accent-soft: #ff66ff;
+      --c-accent-dim: rgba(255, 0, 255, 0.45);
+      --c-border: rgba(255, 0, 255, 0.15);
+      --c-border-hover: rgba(255, 0, 255, 0.45);
+      --c-border-active: rgba(255, 0, 255, 0.80);
+      --glow-accent: 0 0 12px rgba(255, 0, 255, 0.3), 0 0 40px rgba(255, 0, 255, 0.08);
+      --glow-accent-lg: 0 0 24px rgba(255, 0, 255, 0.5), 0 0 80px rgba(255, 0, 255, 0.15);
+    }
+
+    html[data-theme="amber"] {
+      --c-accent: #ffb000;
+      --c-accent-soft: #ffd055;
+      --c-accent-dim: rgba(255, 176, 0, 0.45);
+      --c-border: rgba(255, 176, 0, 0.15);
+      --c-border-hover: rgba(255, 176, 0, 0.45);
+      --c-border-active: rgba(255, 176, 0, 0.80);
+      --glow-accent: 0 0 12px rgba(255, 176, 0, 0.3), 0 0 40px rgba(255, 176, 0, 0.08);
+      --glow-accent-lg: 0 0 24px rgba(255, 176, 0, 0.5), 0 0 80px rgba(255, 176, 0, 0.15);
+    }
+
+    html[data-theme="matrix"] {
+      --c-accent: #39ff14;
+      --c-accent-soft: #70ff55;
+      --c-accent-dim: rgba(57, 255, 20, 0.45);
+      --c-border: rgba(57, 255, 20, 0.15);
+      --c-border-hover: rgba(57, 255, 20, 0.45);
+      --c-border-active: rgba(57, 255, 20, 0.80);
+      --glow-accent: 0 0 12px rgba(57, 255, 20, 0.3), 0 0 40px rgba(57, 255, 20, 0.08);
+      --glow-accent-lg: 0 0 24px rgba(57, 255, 20, 0.5), 0 0 80px rgba(57, 255, 20, 0.15);
     }
 
     *,
@@ -102,7 +134,7 @@
 
     #cursor svg {
       overflow: visible;
-      filter: drop-shadow(0 0 4px #00c8e8) drop-shadow(0 0 12px #00c8e855);
+      filter: drop-shadow(0 0 4px var(--c-accent)) drop-shadow(0 0 12px rgba(0, 255, 255, 0.3));
       transition: filter 0.1s ease;
     }
 
@@ -180,7 +212,7 @@
       left: 0;
       right: 0;
       height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.4), transparent);
+      background: linear-gradient(90deg, transparent, var(--c-accent-dim), transparent);
       animation: scan-h 4s linear infinite;
     }
 
@@ -203,8 +235,8 @@
       font-size: 13px;
       font-weight: 800;
       letter-spacing: 0.12em;
-      color: var(--c-cyan);
-      text-shadow: var(--glow-cyan);
+      color: var(--c-accent);
+      text-shadow: var(--glow-accent);
       text-transform: uppercase;
       -webkit-app-region: no-drag;
     }
@@ -239,8 +271,8 @@
 
     .title-btn:hover {
       border-color: var(--c-border-hover);
-      color: var(--c-cyan);
-      box-shadow: var(--glow-cyan);
+      color: var(--c-accent);
+      box-shadow: var(--glow-accent);
     }
 
     /* ── TOOLBAR ── */
@@ -253,13 +285,14 @@
       background: var(--c-surface-01);
       border-bottom: 1px solid var(--c-border);
       flex-shrink: 0;
+      overflow-x: auto;
     }
 
     .tool-btn {
       display: flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 14px;
+      padding: 6px 12px;
       height: 30px;
       background: transparent;
       border: 1px solid var(--c-border);
@@ -271,24 +304,32 @@
       text-transform: uppercase;
       cursor: none;
       transition: var(--transition);
+      white-space: nowrap;
     }
 
     .tool-btn:hover {
       border-color: var(--c-border-hover);
-      color: var(--c-cyan);
+      color: var(--c-accent);
       background: rgba(0, 255, 255, 0.04);
-      box-shadow: var(--glow-cyan);
+      box-shadow: var(--glow-accent);
     }
 
     .tool-btn.primary {
-      border-color: rgba(0, 255, 255, 0.4);
-      color: var(--c-cyan);
+      border-color: var(--c-accent-dim);
+      color: var(--c-accent);
       background: rgba(0, 255, 255, 0.06);
     }
 
     .tool-btn.primary:hover {
       background: rgba(0, 255, 255, 0.12);
-      box-shadow: var(--glow-cyan-lg);
+      box-shadow: var(--glow-accent-lg);
+    }
+
+    .tool-btn.active {
+      border-color: var(--c-accent);
+      color: var(--c-accent);
+      background: rgba(0, 255, 255, 0.15);
+      box-shadow: var(--glow-accent);
     }
 
     .tool-btn svg {
@@ -322,7 +363,7 @@
 
     #search-wrap:focus-within {
       border-color: var(--c-border-hover);
-      box-shadow: var(--glow-cyan);
+      box-shadow: var(--glow-accent);
     }
 
     #search-icon {
@@ -337,12 +378,23 @@
       font-family: var(--font-mono);
       font-size: 12px;
       color: var(--c-text);
-      width: 180px;
-      caret-color: var(--c-cyan);
+      width: 160px;
+      caret-color: var(--c-accent);
     }
 
     #search-input::placeholder {
       color: var(--c-text-ghost);
+    }
+
+    .select-theme {
+      background: var(--c-bg);
+      color: var(--c-text-secondary);
+      border: 1px solid var(--c-border);
+      font-family: var(--font-tactical);
+      font-size: 11px;
+      height: 30px;
+      padding: 0 8px;
+      outline: none;
     }
 
     /* ── TABS ── */
@@ -351,24 +403,12 @@
       align-items: flex-end;
       gap: 0;
       height: 36px;
-      padding: 0 16px 0 16px;
+      padding: 0 16px;
       background: rgba(2, 4, 8, 0.8);
       border-bottom: 1px solid var(--c-border);
       flex-shrink: 0;
       overflow-x: auto;
       overflow-y: hidden;
-    }
-
-    #tabs-bar::-webkit-scrollbar {
-      height: 2px;
-    }
-
-    #tabs-bar::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    #tabs-bar::-webkit-scrollbar-thumb {
-      background: rgba(0, 255, 255, 0.3);
     }
 
     .tab {
@@ -398,7 +438,7 @@
     }
 
     .tab.active {
-      color: var(--c-cyan);
+      color: var(--c-accent);
       background: var(--c-surface-01);
       border-color: var(--c-border);
       border-bottom-color: var(--c-surface-01);
@@ -412,8 +452,8 @@
       left: 0;
       right: 0;
       height: 1px;
-      background: var(--c-cyan);
-      box-shadow: var(--glow-cyan);
+      background: var(--c-accent);
+      box-shadow: var(--glow-accent);
     }
 
     .tab-close {
@@ -481,18 +521,6 @@
       padding: 4px 0;
     }
 
-    #file-list::-webkit-scrollbar {
-      width: 4px;
-    }
-
-    #file-list::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    #file-list::-webkit-scrollbar-thumb {
-      background: rgba(0, 255, 255, 0.2);
-    }
-
     .file-item {
       display: flex;
       align-items: center;
@@ -510,7 +538,7 @@
 
     .file-item.active {
       background: rgba(0, 255, 255, 0.07);
-      border-left-color: var(--c-cyan);
+      border-left-color: var(--c-accent);
     }
 
     .file-item-icon {
@@ -529,7 +557,7 @@
     }
 
     .file-item.active .file-item-name {
-      color: var(--c-cyan);
+      color: var(--c-accent);
     }
 
     .file-item-size {
@@ -561,7 +589,7 @@
     .stat-value {
       font-family: var(--font-mono);
       font-size: 11px;
-      color: var(--c-cyan-soft);
+      color: var(--c-accent-soft);
     }
 
     /* ── EDITOR AREA ── */
@@ -598,7 +626,7 @@
       font-weight: 900;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--c-cyan);
+      color: var(--c-accent);
       text-shadow: 0 0 30px rgba(0, 255, 255, 0.5), 0 0 80px rgba(0, 255, 255, 0.15);
       text-align: center;
       position: relative;
@@ -628,7 +656,7 @@
       padding: 14px 28px;
       background: rgba(0, 255, 255, 0.06);
       border: 1px solid rgba(0, 255, 255, 0.35);
-      color: var(--c-cyan);
+      color: var(--c-accent);
       font-family: var(--font-tactical);
       font-size: 13px;
       font-weight: 700;
@@ -638,14 +666,6 @@
       transition: var(--transition);
       position: relative;
       overflow: hidden;
-    }
-
-    .welcome-btn::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 255, 255, 0);
-      transition: var(--transition);
     }
 
     .welcome-btn:hover {
@@ -700,23 +720,16 @@
     }
 
     .drop-box {
-      border: 2px dashed var(--c-cyan);
+      border: 2px dashed var(--c-accent);
       padding: 60px 80px;
       text-align: center;
-      box-shadow: var(--glow-cyan-lg), inset 0 0 60px rgba(0, 255, 255, 0.03);
+      box-shadow: var(--glow-accent-lg), inset 0 0 60px rgba(0, 255, 255, 0.03);
       animation: drop-pulse 1.5s ease-in-out infinite;
     }
 
     @keyframes drop-pulse {
-
-      0%,
-      100% {
-        box-shadow: var(--glow-cyan);
-      }
-
-      50% {
-        box-shadow: var(--glow-cyan-lg);
-      }
+      0%, 100% { box-shadow: var(--glow-accent); }
+      50% { box-shadow: var(--glow-accent-lg); }
     }
 
     .drop-title {
@@ -724,8 +737,8 @@
       font-size: 24px;
       font-weight: 800;
       letter-spacing: 0.12em;
-      color: var(--c-cyan);
-      text-shadow: var(--glow-cyan);
+      color: var(--c-accent);
+      text-shadow: var(--glow-accent);
       text-transform: uppercase;
     }
 
@@ -768,7 +781,7 @@
     .file-meta-name {
       font-family: var(--font-mono);
       font-size: 13px;
-      color: var(--c-cyan);
+      color: var(--c-accent);
     }
 
     .file-meta-path {
@@ -787,35 +800,10 @@
       border: 1px solid;
     }
 
-    .badge-text {
-      color: var(--c-cyan-soft);
-      border-color: rgba(0, 255, 200, 0.3);
-      background: rgba(0, 255, 200, 0.06);
-    }
-
-    .badge-code {
-      color: var(--c-orange);
-      border-color: rgba(255, 107, 53, 0.3);
-      background: rgba(255, 107, 53, 0.06);
-    }
-
-    .badge-data {
-      color: var(--c-blue);
-      border-color: rgba(0, 136, 255, 0.3);
-      background: rgba(0, 136, 255, 0.06);
-    }
-
-    .badge-doc {
-      color: var(--c-gold);
-      border-color: rgba(255, 215, 0, 0.3);
-      background: rgba(255, 215, 0, 0.05);
-    }
-
-    .badge-binary {
-      color: var(--c-magenta);
-      border-color: rgba(255, 0, 255, 0.3);
-      background: rgba(255, 0, 255, 0.06);
-    }
+    .badge-text { color: var(--c-accent-soft); border-color: rgba(0, 255, 200, 0.3); background: rgba(0, 255, 200, 0.06); }
+    .badge-code { color: var(--c-orange); border-color: rgba(255, 107, 53, 0.3); background: rgba(255, 107, 53, 0.06); }
+    .badge-data { color: var(--c-blue); border-color: rgba(0, 136, 255, 0.3); background: rgba(0, 136, 255, 0.06); }
+    .badge-doc { color: var(--c-gold); border-color: rgba(255, 215, 0, 0.3); background: rgba(255, 215, 0, 0.05); }
 
     #content-wrap {
       flex: 1;
@@ -832,10 +820,10 @@
       border-right: 1px solid var(--c-border);
       overflow: hidden;
       user-select: none;
-      font-family: var(--font-mono), "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji";
-      font-size: 16px;
-      line-height: 1.7;
-      color: rgba(0, 255, 255, 0.2);
+      font-family: var(--font-mono);
+      font-size: 14px;
+      line-height: 1.6;
+      color: rgba(0, 255, 255, 0.25);
       text-align: right;
     }
 
@@ -844,116 +832,86 @@
       display: block;
     }
 
-    .line-num.active {
-      color: rgba(0, 255, 255, 0.6);
-    }
-
     /* ── TEXT CONTENT ── */
     #text-content {
       flex: 1;
       overflow: auto;
       padding: 16px 24px;
-      font-family: var(--font-mono), "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji";
-      font-size: 16px;
-      line-height: 1.7;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      line-height: 1.6;
       color: var(--c-text);
       white-space: pre-wrap;
       word-break: normal;
       overflow-wrap: anywhere;
       tab-size: 4;
-      -moz-tab-size: 4;
-      caret-color: var(--c-cyan);
+      caret-color: var(--c-accent);
       user-select: text;
       cursor: text;
     }
 
-    #text-content::-webkit-scrollbar {
-      width: 4px;
-      height: 4px;
-    }
+    #text-content::-webkit-scrollbar { width: 6px; height: 6px; }
+    #text-content::-webkit-scrollbar-thumb { background: rgba(0, 255, 255, 0.2); }
+    #text-content::-webkit-scrollbar-thumb:hover { background: rgba(0, 255, 255, 0.4); }
 
-    #text-content::-webkit-scrollbar-track {
+    /* MARKDOWN RENDER STYLES */
+    #text-content.md-render-mode {
+      font-family: var(--font-body);
+      white-space: normal;
+      line-height: 1.7;
+    }
+    #text-content.md-render-mode h1,
+    #text-content.md-render-mode h2,
+    #text-content.md-render-mode h3 {
+      font-family: var(--font-display);
+      color: var(--c-accent);
+      margin: 1.2em 0 0.5em 0;
+      border-bottom: 1px solid var(--c-border);
+      padding-bottom: 4px;
+    }
+    #text-content.md-render-mode p { margin-bottom: 1em; }
+    #text-content.md-render-mode code {
+      font-family: var(--font-mono);
+      background: rgba(0, 255, 255, 0.08);
+      color: var(--c-accent-soft);
+      padding: 2px 6px;
+      border: 1px solid var(--c-border);
+    }
+    #text-content.md-render-mode pre {
+      background: rgba(5, 8, 16, 0.9);
+      border: 1px solid var(--c-border);
+      padding: 12px;
+      margin: 1em 0;
+      overflow-x: auto;
+    }
+    #text-content.md-render-mode pre code {
       background: transparent;
+      border: none;
+      padding: 0;
     }
 
-    #text-content::-webkit-scrollbar-thumb {
-      background: rgba(0, 255, 255, 0.2);
-    }
-
-    #text-content::-webkit-scrollbar-thumb:hover {
-      background: rgba(0, 255, 255, 0.4);
-    }
-
-    ::selection {
-      background: rgba(0, 255, 255, 0.15);
-      color: var(--c-cyan);
-    }
-
-    /* ── HIGHLIGHT CLASSES ── */
-    .hl-keyword {
-      color: #0088ff;
-    }
-
-    .hl-string {
-      color: #00ffc8;
-    }
-
-    .hl-comment {
-      color: rgba(0, 255, 255, 0.3);
-      font-style: italic;
-    }
-
-    .hl-number {
-      color: #ff9500;
-    }
-
-    .hl-function {
-      color: #ff6b35;
-    }
-
-    .hl-operator {
-      color: rgba(0, 255, 255, 0.7);
-    }
-
-    .hl-tag {
-      color: #0088ff;
-    }
-
-    .hl-attr {
-      color: #ffd700;
-    }
-
-    .hl-value {
-      color: #00ffc8;
-    }
-
-    .hl-bracket {
-      color: rgba(0, 255, 255, 0.5);
-    }
-
-    .hl-property {
-      color: #ff9500;
-    }
-
-    .hl-boolean {
-      color: #ff6b35;
-    }
-
-    .hl-null {
-      color: var(--c-magenta);
-    }
+    /* HIGHLIGHT CLASSES */
+    .hl-keyword { color: #0088ff; }
+    .hl-string { color: #00ffc8; }
+    .hl-comment { color: rgba(0, 255, 255, 0.35); font-style: italic; }
+    .hl-number { color: #ff9500; }
+    .hl-function { color: #ff6b35; }
+    .hl-tag { color: #0088ff; }
+    .hl-attr { color: #ffd700; }
+    .hl-property { color: #ff9500; }
+    .hl-boolean { color: #ff6b35; }
 
     /* SEARCH HIGHLIGHTS */
     .search-match {
-      background: rgba(255, 215, 0, 0.25);
+      background: rgba(255, 215, 0, 0.3);
       color: var(--c-gold);
-      outline: 1px solid rgba(255, 215, 0, 0.4);
+      outline: 1px solid rgba(255, 215, 0, 0.6);
     }
 
     .search-match.current {
-      background: rgba(255, 107, 53, 0.35);
-      color: var(--c-orange);
-      outline-color: var(--c-orange);
+      background: rgba(255, 107, 53, 0.5);
+      color: #fff;
+      outline: 2px solid var(--c-orange);
     }
 
     /* ── STATUSBAR ── */
@@ -978,66 +936,45 @@
       height: 100%;
     }
 
-    .status-segment:first-child {
-      padding-left: 0;
-    }
+    .status-segment:first-child { padding-left: 0; }
+    .status-label { font-family: var(--font-tactical); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--c-text-ghost); }
+    .status-value { font-family: var(--font-mono); font-size: 11px; color: var(--c-accent-soft); }
+    .status-pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--c-green); box-shadow: 0 0 10px var(--c-green); animation: pulse-dot 2s ease-in-out infinite; }
 
-    .status-label {
-      font-family: var(--font-tactical);
-      font-size: 9px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--c-text-ghost);
-    }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .status-spacer { flex: 1; }
+    .blink-cursor { font-family: var(--font-mono); font-size: 12px; color: var(--c-accent); animation: blink 0.8s step-end infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-    .status-value {
+    /* ── MODAL JUMP TO LINE ── */
+    #modal-jump {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: rgba(0, 0, 0, 0.75);
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    #modal-jump.active { display: flex; }
+    .modal-box {
+      background: var(--c-surface-01);
+      border: 1px solid var(--c-border);
+      padding: 20px;
+      width: 320px;
+      box-shadow: var(--glow-accent-lg);
+    }
+    .modal-title { font-family: var(--font-display); font-size: 14px; color: var(--c-accent); margin-bottom: 12px; }
+    .modal-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--c-border);
+      color: var(--c-text);
       font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--c-cyan-soft);
-    }
-
-    .status-pulse {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--c-green);
-      box-shadow: var(--glow-green);
-      animation: pulse-dot 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse-dot {
-
-      0%,
-      100% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: 0.3;
-      }
-    }
-
-    .status-spacer {
-      flex: 1;
-    }
-
-    .blink-cursor {
-      font-family: var(--font-mono);
-      font-size: 12px;
-      color: var(--c-cyan);
-      animation: blink 0.8s step-end infinite;
-    }
-
-    @keyframes blink {
-
-      0%,
-      100% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: 0;
-      }
+      font-size: 14px;
+      padding: 8px;
+      outline: none;
+      margin-bottom: 14px;
     }
 
     /* ── TOAST ── */
@@ -1053,80 +990,28 @@
       background: var(--c-surface-01);
       backdrop-filter: blur(20px);
       border: 1px solid var(--c-border);
-      border-left: 3px solid var(--c-cyan);
+      border-left: 3px solid var(--c-accent);
       font-family: var(--font-tactical);
       font-size: 12px;
       font-weight: 600;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: var(--c-cyan);
+      color: var(--c-accent);
       opacity: 0;
       transform: translateY(8px);
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       pointer-events: none;
     }
 
-    #toast.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    #toast.error {
-      border-left-color: var(--c-magenta);
-      color: var(--c-magenta);
-    }
-
-    #toast.success {
-      border-left-color: var(--c-green);
-      color: var(--c-green);
-    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.error { border-left-color: var(--c-magenta); color: var(--c-magenta); }
+    #toast.success { border-left-color: var(--c-green); color: var(--c-green); }
 
     /* ── ANIMATIONS ── */
-    @keyframes fade-up {
-      from {
-        opacity: 0;
-        transform: translateY(12px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .fade-up {
-      animation: fade-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-
-    @keyframes scan-sweep {
-      0% {
-        top: -2px;
-        opacity: 0;
-      }
-
-      10% {
-        opacity: 1;
-      }
-
-      90% {
-        opacity: 1;
-      }
-
-      100% {
-        top: 100%;
-        opacity: 0;
-      }
-    }
-
-    .scan-line-anim {
-      position: absolute;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.4), rgba(0, 255, 255, 0.6), rgba(0, 255, 255, 0.4), transparent);
-      pointer-events: none;
-      animation: scan-sweep 6s linear infinite;
-    }
+    @keyframes fade-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-up { animation: fade-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    @keyframes scan-sweep { 0% { top: -2px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+    .scan-line-anim { position: absolute; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--c-accent-dim), transparent); pointer-events: none; animation: scan-sweep 6s linear infinite; }
   </style>
 </head>
 
@@ -1145,62 +1030,15 @@
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
-        <linearGradient id="ice" x1="6" y1="5" x2="26" y2="28" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#0d2e38" stop-opacity="0.72" />
-          <stop offset="45%" stop-color="#071418" stop-opacity="0.55" />
-          <stop offset="100%" stop-color="#000a0d" stop-opacity="0.38" />
-        </linearGradient>
-        <linearGradient id="sheen" x1="6" y1="5" x2="35" y2="11" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#a8f0f4" stop-opacity="0.18" />
-          <stop offset="40%" stop-color="#00c8e8" stop-opacity="0.06" />
-          <stop offset="100%" stop-color="#00c8e8" stop-opacity="0" />
-        </linearGradient>
         <clipPath id="clip">
           <polygon points="6,5 35,11 15,34" />
         </clipPath>
       </defs>
 
-      <polygon points="6,5 35,11 15,34" fill="url(#ice)" stroke="#00c8e8" stroke-width="1.4" stroke-linejoin="round"
-        filter="url(#glow)" />
-
-      <polygon points="6,5 35,11 15,34" fill="url(#sheen)" stroke="none" />
-
-      <polygon points="8,7 32,13 17,31" fill="none" stroke="#00c8e8" stroke-width="0.5" stroke-linejoin="round"
-        opacity="0.28" />
-
-      <line x1="8" y1="7" x2="3" y2="2" stroke="#00c8e8" stroke-width="1.2" stroke-linecap="round"
-        filter="url(#glow)" />
-      <line x1="11" y1="7" x2="14" y2="1" stroke="#00c8e8" stroke-width="1.2" stroke-linecap="round"
-        filter="url(#glow)" />
-      <line x1="6" y1="8" x2="12" y2="7" stroke="#00c8e8" stroke-width="0.8" stroke-linecap="round" opacity="0.55" />
-      <circle cx="3" cy="2" r="1" fill="#00c8e8" filter="url(#glow)">
-        <animate attributeName="opacity" values="1;0.2;1" dur="1.6s" repeatCount="indefinite" />
-      </circle>
-      <circle cx="14" cy="1" r="1" fill="#00c8e8" filter="url(#glow)">
-        <animate attributeName="opacity" values="1;0.2;1" dur="1.6s" begin="0.5s" repeatCount="indefinite" />
-      </circle>
-
-      <line x1="9" y1="14" x2="6" y2="16" stroke="#00c8e8" stroke-width="1" stroke-linecap="round" opacity="0.65" />
-      <line x1="11" y1="22" x2="8" y2="23" stroke="#00c8e8" stroke-width="1" stroke-linecap="round" opacity="0.65" />
-
-      <line x1="21" y1="8" x2="23" y2="11" stroke="#00c8e8" stroke-width="1" stroke-linecap="round" opacity="0.65" />
-      <line x1="29" y1="10" x2="30" y2="13" stroke="#00c8e8" stroke-width="1" stroke-linecap="round" opacity="0.65" />
-
-      <circle cx="6" cy="5" r="1.6" fill="#00e8ff" filter="url(#glow)">
-        <animate attributeName="r" values="1.6;2.2;1.6" dur="2s" repeatCount="indefinite" />
-        <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite" />
-      </circle>
-
-      <text id="s-idle" x="18" y="17" text-anchor="middle" dominant-baseline="middle" font-family="Orbitron, monospace"
-        font-size="10" font-weight="900" fill="#0d2a30" transform="rotate(-45, 18, 17)" clip-path="url(#clip)">S</text>
-
-      <text id="s-move" x="18" y="17" text-anchor="middle" dominant-baseline="middle" font-family="Orbitron, monospace"
-        font-size="10" font-weight="900" fill="#00e8ff" filter="url(#glow)" transform="rotate(-45, 18, 17)"
-        clip-path="url(#clip)">S</text>
-
-      <text id="s-click" x="18" y="17" text-anchor="middle" dominant-baseline="middle" font-family="Orbitron, monospace"
-        font-size="10" font-weight="900" fill="#39ff14" filter="url(#glow)" transform="rotate(-45, 18, 17)"
-        clip-path="url(#clip)">S</text>
+      <polygon points="6,5 35,11 15,34" fill="#071418" stroke="var(--c-accent)" stroke-width="1.4" stroke-linejoin="round" filter="url(#glow)" />
+      <text id="s-idle" x="18" y="17" text-anchor="middle" dominant-baseline="middle" font-family="Orbitron, monospace" font-size="10" font-weight="900" fill="#0d2a30" transform="rotate(-45, 18, 17)" clip-path="url(#clip)">S</text>
+      <text id="s-move" x="18" y="17" text-anchor="middle" dominant-baseline="middle" font-family="Orbitron, monospace" font-size="10" font-weight="900" fill="var(--c-accent)" filter="url(#glow)" transform="rotate(-45, 18, 17)" clip-path="url(#clip)">S</text>
+      <text id="s-click" x="18" y="17" text-anchor="middle" dominant-baseline="middle" font-family="Orbitron, monospace" font-size="10" font-weight="900" fill="#39ff14" filter="url(#glow)" transform="rotate(-45, 18, 17)" clip-path="url(#clip)">S</text>
     </svg>
   </div>
 
@@ -1209,6 +1047,18 @@
     <div class="drop-box">
       <div class="drop-title">◆ DROP FILES HERE</div>
       <div class="drop-sub">Release to open in SOFTCURSE reader</div>
+    </div>
+  </div>
+
+  <!-- Modal Jump to Line -->
+  <div id="modal-jump">
+    <div class="modal-box">
+      <div class="modal-title">JUMP TO LINE</div>
+      <input type="number" id="jump-line-input" class="modal-input" placeholder="Enter line number..." min="1">
+      <div style="display:flex;justify-content:flex-end;gap:8px;">
+        <button class="tool-btn" onclick="closeJumpModal()">CANCEL</button>
+        <button class="tool-btn primary" onclick="executeJumpToLine()">JUMP</button>
+      </div>
     </div>
   </div>
 
@@ -1229,72 +1079,54 @@
       <div class="title-actions">
         <button class="title-btn" onclick="minimizeWindow()" title="Minimize">─</button>
         <button class="title-btn" onclick="maximizeWindow()" title="Maximize">□</button>
-        <button class="title-btn" style="border-color:rgba(255,0,255,0.3);color:rgba(255,0,255,0.6);"
-          onclick="closeWindow()" title="Close">✕</button>
+        <button class="title-btn" style="border-color:rgba(255,0,255,0.3);color:rgba(255,0,255,0.6);" onclick="closeWindow()" title="Close">✕</button>
       </div>
     </div>
 
     <!-- Toolbar -->
     <div id="toolbar">
       <button class="tool-btn primary" onclick="openFileDialog()">
-        <svg viewBox="0 0 24 24">
-          <path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-        </svg>
+        <svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg>
         OPEN FILE
       </button>
       <button class="tool-btn" onclick="openFolderDialog()">
-        <svg viewBox="0 0 24 24">
-          <path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-          <line x1="12" y1="11" x2="12" y2="17" />
-          <line x1="9" y1="14" x2="15" y2="14" />
-        </svg>
+        <svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><line x1="12" y1="11" x2="12" y2="17" /><line x1="9" y1="14" x2="15" y2="14" /></svg>
         OPEN FOLDER
       </button>
       <div class="toolbar-sep"></div>
-      <button class="tool-btn" id="btn-wrap" onclick="toggleWrap()">
-        <svg viewBox="0 0 24 24">
-          <polyline points="4 7 4 4 20 4 20 7" />
-          <line x1="9" y1="20" x2="15" y2="20" />
-          <line x1="12" y1="4" x2="12" y2="20" />
-        </svg>
-        WRAP
-      </button>
-      <button class="tool-btn" id="btn-ln" onclick="toggleLineNumbers()"
-        style="border-color:rgba(0,255,255,0.3);color:var(--c-cyan);">
-        LN NUMS
-      </button>
+      <button class="tool-btn" id="btn-wrap" onclick="toggleWrap()">WRAP</button>
+      <button class="tool-btn active" id="btn-ln" onclick="toggleLineNumbers()">LN NUMS</button>
+      <button class="tool-btn" id="btn-hex" onclick="toggleHexView()">HEX VIEW</button>
+      <button class="tool-btn" id="btn-md" onclick="toggleMarkdownView()">MARKDOWN</button>
       <div class="toolbar-sep"></div>
-      <button class="tool-btn" onclick="copyContent()">
-        <svg viewBox="0 0 24 24">
-          <rect x="9" y="9" width="13" height="13" rx="0" />
-          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-        </svg>
-        COPY
-      </button>
-      <button class="tool-btn" onclick="closeCurrentTab()">
-        <svg viewBox="0 0 24 24">
-          <line x1="18" y1="6" x2="6" y2="18" />
-          <line x1="6" y1="6" x2="18" y2="18" />
-        </svg>
-        CLOSE TAB
-      </button>
+      <button class="tool-btn" onclick="zoomIn()">+</button>
+      <button class="tool-btn" onclick="zoomOut()">-</button>
+      <button class="tool-btn" onclick="zoomReset()">100%</button>
+      <div class="toolbar-sep"></div>
+      <button class="tool-btn" onclick="openJumpModal()">JUMP (Ctrl+G)</button>
+      <button class="tool-btn" onclick="copyContent()">COPY</button>
+      <button class="tool-btn" onclick="closeCurrentTab()">CLOSE TAB</button>
       <div class="toolbar-spacer"></div>
-      <div id="search-wrap">
+      <select class="select-theme" onchange="changeTheme(this.value)">
+        <option value="cyan">THEME: CYAN</option>
+        <option value="magenta">THEME: MAGENTA</option>
+        <option value="amber">THEME: AMBER</option>
+        <option value="matrix">THEME: MATRIX</option>
+      </select>
+      <div id="search-wrap" style="margin-left:6px;">
         <span id="search-icon">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
         </span>
         <input type="text" id="search-input" placeholder="SEARCH CONTENT..." autocomplete="off" spellcheck="false">
       </div>
-      <button class="tool-btn" onclick="doSearch()" style="margin-left:4px;">◆ FIND</button>
+      <button class="tool-btn" onclick="doSearch(1)" style="margin-left:4px;">▲</button>
+      <button class="tool-btn" onclick="doSearch(-1)">▼</button>
     </div>
 
     <!-- Tabs -->
-    <div id="tabs-bar">
-      <!-- tabs injected here -->
-    </div>
+    <div id="tabs-bar"></div>
 
     <!-- Main -->
     <div id="main-area">
@@ -1305,16 +1137,11 @@
         </div>
         <div id="file-list"></div>
         <div class="sidebar-section" id="file-stats">
-          <div class="stat-row"><span class="stat-label">Lines</span><span class="stat-value" id="stat-lines">—</span>
-          </div>
-          <div class="stat-row"><span class="stat-label">Chars</span><span class="stat-value" id="stat-chars">—</span>
-          </div>
-          <div class="stat-row"><span class="stat-label">Size</span><span class="stat-value" id="stat-size">—</span>
-          </div>
-          <div class="stat-row"><span class="stat-label">Encoding</span><span class="stat-value" id="stat-enc">—</span>
-          </div>
-          <div class="stat-row"><span class="stat-label">Type</span><span class="stat-value" id="stat-type">—</span>
-          </div>
+          <div class="stat-row"><span class="stat-label">Lines</span><span class="stat-value" id="stat-lines">—</span></div>
+          <div class="stat-row"><span class="stat-label">Chars</span><span class="stat-value" id="stat-chars">—</span></div>
+          <div class="stat-row"><span class="stat-label">Size</span><span class="stat-value" id="stat-size">—</span></div>
+          <div class="stat-row"><span class="stat-label">Encoding</span><span class="stat-value" id="stat-enc">—</span></div>
+          <div class="stat-row"><span class="stat-label">Type</span><span class="stat-value" id="stat-type">—</span></div>
         </div>
       </div>
 
@@ -1329,39 +1156,19 @@
           <div class="welcome-sub">◆ UNIVERSAL TEXT FILE SYSTEM · v1.0.0 ◆</div>
           <div class="welcome-actions">
             <button class="welcome-btn" onclick="openFileDialog()">
-              <svg viewBox="0 0 24 24">
-                <path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-              </svg>
+              <svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg>
               OPEN FILE
             </button>
-            <button class="welcome-btn" onclick="openFolderDialog()"
-              style="border-color:rgba(0,136,255,0.35);color:var(--c-blue);background:rgba(0,136,255,0.06);">
-              <svg viewBox="0 0 24 24">
-                <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 2h9a2 2 0 012 2z" />
-              </svg>
+            <button class="welcome-btn" onclick="openFolderDialog()" style="border-color:rgba(0,136,255,0.35);color:var(--c-blue);background:rgba(0,136,255,0.06);">
+              <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 2h9a2 2 0 012 2z" /></svg>
               OPEN FOLDER
             </button>
           </div>
-          <div
-            style="font-family:var(--font-tactical);font-size:11px;letter-spacing:0.15em;color:var(--c-text-ghost);text-transform:uppercase;">
-            Or drag & drop files anywhere — supports all text formats
+          <div style="font-family:var(--font-tactical);font-size:11px;letter-spacing:0.15em;color:var(--c-text-ghost);text-transform:uppercase;">
+            Or drag & drop files anywhere — supports text & binary hex inspection
           </div>
           <div class="welcome-formats">
-            <span class="format-tag">.txt</span><span class="format-tag">.md</span><span
-              class="format-tag">.py</span><span class="format-tag">.js</span><span class="format-tag">.ts</span><span
-              class="format-tag">.html</span><span class="format-tag">.css</span><span
-              class="format-tag">.json</span><span class="format-tag">.xml</span><span
-              class="format-tag">.yaml</span><span class="format-tag">.yml</span><span
-              class="format-tag">.csv</span><span class="format-tag">.tsv</span><span
-              class="format-tag">.sql</span><span class="format-tag">.sh</span><span class="format-tag">.bat</span><span
-              class="format-tag">.ps1</span><span class="format-tag">.java</span><span class="format-tag">.c</span><span
-              class="format-tag">.cpp</span><span class="format-tag">.h</span><span class="format-tag">.rs</span><span
-              class="format-tag">.go</span><span class="format-tag">.rb</span><span class="format-tag">.php</span><span
-              class="format-tag">.lua</span><span class="format-tag">.r</span><span class="format-tag">.tex</span><span
-              class="format-tag">.log</span><span class="format-tag">.ini</span><span
-              class="format-tag">.cfg</span><span class="format-tag">.conf</span><span
-              class="format-tag">.rtf</span><span class="format-tag">.adoc</span><span
-              class="format-tag">.rst</span><span class="format-tag">+ more</span>
+            <span class="format-tag">.txt</span><span class="format-tag">.md</span><span class="format-tag">.py</span><span class="format-tag">.js</span><span class="format-tag">.ts</span><span class="format-tag">.html</span><span class="format-tag">.css</span><span class="format-tag">.json</span><span class="format-tag">.xml</span><span class="format-tag">.yaml</span><span class="format-tag">.csv</span><span class="format-tag">.sql</span><span class="format-tag">.sh</span><span class="format-tag">.bat</span><span class="format-tag">.bin (hex)</span><span class="format-tag">+ 100 more</span>
           </div>
         </div>
 
@@ -1395,7 +1202,11 @@
       </div>
       <div class="status-segment">
         <span class="status-label">POS</span>
-        <span class="status-value" id="sb-pos">LN 0 : COL 0</span>
+        <span class="status-value" id="sb-pos">LN 1 : COL 1</span>
+      </div>
+      <div class="status-segment">
+        <span class="status-label">ZOOM</span>
+        <span class="status-value" id="sb-zoom">100%</span>
       </div>
       <div class="status-segment">
         <span class="status-label">TABS</span>
@@ -1416,11 +1227,12 @@
   <script>
     // ── STATE ──
     const state = {
-      tabs: [], // { id, name, path, ext, content, rawContent, wrap, type }
+      tabs: [], // { id, name, path, ext, content, rawContent, hexDump, encoding, isBinary, wrap, lineNumbers, isHexView, isMdView, type }
       activeTab: null,
-      lineNumbers: true,
-      searchMatches: [],
-      currentMatch: -1,
+      fontSize: 14,
+      searchQuery: '',
+      matchIndices: [],
+      currentMatchIdx: -1,
     };
 
     // ── CURSOR ──
@@ -1463,14 +1275,23 @@
       files.forEach(f => readFileObject(f));
     });
 
-    // ── FILE READING (browser File API) ──
+    // ── FILE READING (browser File API fallback) ──
     function readFileObject(fileObj) {
       const reader = new FileReader();
       reader.onload = ev => {
         const content = ev.target.result;
         const name = fileObj.name;
         const ext = name.includes('.') ? name.split('.').pop().toLowerCase() : 'txt';
-        addTab({ name, path: fileObj.path || name, ext, content });
+        addTab({
+          name,
+          path: fileObj.path || name,
+          ext,
+          size: fileObj.size || content.length,
+          encoding: 'UTF-8',
+          is_binary: false,
+          content,
+          hex_dump: ''
+        });
       };
       reader.onerror = () => showToast('READ ERROR: ' + fileObj.name, 'error');
       reader.readAsText(fileObj, 'UTF-8');
@@ -1483,10 +1304,8 @@
           if (result) result.forEach(r => addTab(r));
         });
       } else {
-        // fallback: html file input
         const inp = document.createElement('input');
-        inp.type = 'file'; inp.multiple = true;
-        inp.accept = '*/*';
+        inp.type = 'file'; inp.multiple = true; inp.accept = '*/*';
         inp.onchange = () => Array.from(inp.files).forEach(f => readFileObject(f));
         inp.click();
       }
@@ -1509,26 +1328,48 @@
 
     // ── TAB MANAGEMENT ──
     let tabIdCounter = 0;
-    function addTab({ name, path, ext, content }) {
+    function addTab(fileData) {
       const id = ++tabIdCounter;
-      const type = getFileType(ext);
-      const tab = { id, name, path, ext, content, rawContent: content, wrap: false, type };
+      const type = getFileType(fileData.ext);
+      const isBin = fileData.is_binary || false;
+      const tab = {
+        id,
+        name: fileData.name,
+        path: fileData.path,
+        ext: fileData.ext,
+        size: fileData.size || fileData.content.length,
+        content: fileData.content,
+        rawContent: fileData.content,
+        hexDump: fileData.hex_dump || '',
+        encoding: fileData.encoding || 'UTF-8',
+        isBinary: isBin,
+        wrap: false,
+        lineNumbers: true,
+        isHexView: isBin,
+        isMdView: false,
+        type
+      };
       state.tabs.push(tab);
       renderTabs();
       activateTab(id);
-      showToast('◆ LOADED: ' + name, 'success');
+      showToast('◆ LOADED: ' + tab.name, 'success');
     }
 
     function activateTab(id) {
       state.activeTab = id;
+      state.searchQuery = '';
+      state.matchIndices = [];
+      state.currentMatchIdx = -1;
+      document.getElementById('sb-matches').textContent = '—';
       renderTabs();
-      const tab = state.tabs.find(t => t.id === id);
+      const tab = getCurrentTab();
       if (tab) renderContent(tab);
       updateStatusbar();
     }
 
     function closeTab(id) {
       const idx = state.tabs.findIndex(t => t.id === id);
+      if (idx === -1) return;
       state.tabs.splice(idx, 1);
       if (state.activeTab === id) {
         const next = state.tabs[Math.min(idx, state.tabs.length - 1)];
@@ -1544,13 +1385,17 @@
       if (state.activeTab) closeTab(state.activeTab);
     }
 
+    function getCurrentTab() {
+      return state.tabs.find(t => t.id === state.activeTab);
+    }
+
     function renderTabs() {
       const bar = document.getElementById('tabs-bar');
       bar.innerHTML = '';
       state.tabs.forEach(tab => {
         const el = document.createElement('div');
         el.className = 'tab' + (tab.id === state.activeTab ? ' active' : '');
-        el.innerHTML = `<span class="tab-ext">.${tab.ext}</span><span style="max-width:120px;overflow:hidden;text-overflow:ellipsis;">${tab.name}</span><span class="tab-close" data-id="${tab.id}">✕</span>`;
+        el.innerHTML = `<span class="tab-ext">.${tab.ext}</span><span style="max-width:120px;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(tab.name)}</span><span class="tab-close" data-id="${tab.id}">✕</span>`;
         el.addEventListener('click', e => {
           if (e.target.classList.contains('tab-close')) { closeTab(tab.id); return; }
           activateTab(tab.id);
@@ -1564,14 +1409,14 @@
     function updateFileList() {
       const list = document.getElementById('file-list');
       list.innerHTML = '';
-      const icons = { js: '⬡', py: '🐍', html: '◈', css: '◉', json: '{}', md: '◆', txt: '≡', xml: '<>', csv: '⊞', sql: '⊟', sh: '$', bat: '►', yaml: '⊙', yml: '⊙', ts: '⬡', java: '☕', c: '©', cpp: '±', rs: '⚙', go: '◎', rb: '◇', php: '⟨⟩', lua: '◑', r: 'Ⓡ', default: '◻' };
+      const icons = { js: '⬡', py: '🐍', html: '◈', css: '◉', json: '{}', md: '◆', txt: '≡', xml: '<>', csv: '⊞', sql: '⊟', sh: '$', bat: '►', yaml: '⊙', yml: '⊙', ts: '⬡', java: '☕', c: '©', cpp: '±', rs: '⚙', go: '◎', rb: '◇', php: '⟨⟩', lua: '◑', r: 'Ⓡ', bin: '01', exe: '01', default: '◻' };
       state.tabs.forEach(tab => {
         const icon = icons[tab.ext] || icons.default;
         const isActive = tab.id === state.activeTab;
         const el = document.createElement('div');
         el.className = 'file-item' + (isActive ? ' active' : '');
-        const size = formatSize(tab.rawContent.length);
-        el.innerHTML = `<span class="file-item-icon">${icon}</span><span class="file-item-name">${tab.name}</span><span class="file-item-size">${size}</span>`;
+        const size = formatSize(tab.size || tab.rawContent.length);
+        el.innerHTML = `<span class="file-item-icon">${icon}</span><span class="file-item-name">${escapeHtml(tab.name)}</span><span class="file-item-size">${size}</span>`;
         el.addEventListener('click', () => activateTab(tab.id));
         list.appendChild(el);
       });
@@ -1587,17 +1432,39 @@
       document.getElementById('fh-path').textContent = tab.path;
       const badge = document.getElementById('fh-badge');
       const bm = { text: 'badge-text TEXT', code: 'badge-code CODE', data: 'badge-data DATA', doc: 'badge-doc DOC', config: 'badge-text CONFIG' };
-      const bv = bm[tab.type] || 'badge-text TEXT';
+      const bv = tab.isBinary ? 'badge-code BINARY' : (bm[tab.type] || 'badge-text TEXT');
       badge.className = 'file-badge ' + bv.split(' ')[0];
       badge.textContent = bv.split(' ')[1];
 
+      // Sync button states
+      document.getElementById('btn-hex').classList.toggle('active', tab.isHexView);
+      document.getElementById('btn-md').classList.toggle('active', tab.isMdView);
+      document.getElementById('btn-ln').classList.toggle('active', tab.lineNumbers);
+      document.getElementById('line-numbers').style.display = tab.lineNumbers ? '' : 'none';
+
       const textEl = document.getElementById('text-content');
-      const highlighted = highlight(tab.rawContent, tab.ext);
-      textEl.innerHTML = highlighted;
+      textEl.style.fontSize = state.fontSize + 'px';
+      document.getElementById('line-numbers').style.fontSize = state.fontSize + 'px';
 
-      renderLineNumbers(tab.rawContent);
+      if (tab.isHexView) {
+        textEl.classList.remove('md-render-mode');
+        textEl.style.whiteSpace = 'pre';
+        const dump = tab.hexDump || generateJsHexDump(tab.rawContent);
+        textEl.innerHTML = escapeHtml(dump);
+        renderLineNumbers(dump);
+      } else if (tab.isMdView) {
+        textEl.classList.add('md-render-mode');
+        textEl.style.whiteSpace = 'normal';
+        textEl.innerHTML = renderSimpleMarkdown(tab.rawContent);
+        renderLineNumbers(tab.rawContent);
+      } else {
+        textEl.classList.remove('md-render-mode');
+        textEl.style.whiteSpace = tab.wrap ? 'pre-wrap' : 'pre';
+        textEl.innerHTML = highlight(tab.rawContent, tab.ext);
+        renderLineNumbers(tab.rawContent);
+      }
+
       updateFileStats(tab);
-
       document.getElementById('sb-file').textContent = tab.name.toUpperCase();
     }
 
@@ -1606,7 +1473,7 @@
       document.getElementById('file-viewer').classList.remove('active');
     }
 
-    // ── SYNTAX HIGHLIGHTING ──
+    // ── SYNTAX & MARKDOWN HIGHLIGHTING ──
     function highlight(content, ext) {
       const escaped = escapeHtml(content);
       const codeExts = ['js', 'ts', 'jsx', 'tsx', 'py', 'java', 'c', 'cpp', 'h', 'cs', 'go', 'rs', 'rb', 'php', 'lua', 'pl', 'r', 'jl', 'm', 'kt', 'scala', 'swift'];
@@ -1626,7 +1493,7 @@
     }
 
     function parseAnsi(text) {
-      text = text.replace(/\x1b\[[0-9;]*[ABCDA-Ksu]/g, ''); // strip positioning
+      text = text.replace(/\x1b\[[0-9;]*[ABCDA-Ksu]/g, '');
       const fg = { 30: 'var(--c-bg)', 31: 'var(--c-orange)', 32: 'var(--c-green)', 33: 'var(--c-gold)', 34: 'var(--c-blue)', 35: 'var(--c-magenta)', 36: 'var(--c-cyan)', 37: 'var(--c-text)', 90: 'var(--c-text-ghost)', 91: 'var(--c-orange)', 92: 'var(--c-green)', 93: 'var(--c-gold)', 94: 'var(--c-blue)', 95: 'var(--c-magenta)', 96: 'var(--c-cyan)', 97: 'white' };
       const bg = { 40: 'var(--c-bg)', 41: 'var(--c-orange)', 42: 'var(--c-green)', 43: 'var(--c-gold)', 44: 'var(--c-blue)', 45: 'var(--c-magenta)', 46: 'var(--c-cyan)', 47: 'var(--c-text)', 100: 'var(--c-text-ghost)', 101: 'var(--c-orange)', 102: 'var(--c-green)', 103: 'var(--c-gold)', 104: 'var(--c-blue)', 105: 'var(--c-magenta)', 106: 'var(--c-cyan)', 107: 'white' };
       let openSpans = 0;
@@ -1648,15 +1515,50 @@
       return parsed;
     }
 
+    function renderSimpleMarkdown(text) {
+      let h = escapeHtml(text);
+      h = h.replace(/^### (.*$)/gim, '<h3>$1</h3>')
+           .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+           .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+           .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+           .replace(/\*(.*?)\*/g, '<em>$1</em>')
+           .replace(/`([^`]+)`/g, '<code>$1</code>')
+           .replace(/\n\n/g, '</p><p>')
+           .replace(/\n/g, '<br>');
+      return '<p>' + h + '</p>';
+    }
+
+    function generateJsHexDump(str) {
+      let lines = [];
+      const len = Math.min(str.length, 65536);
+      for (let i = 0; i < len; i += 16) {
+        let chunk = str.substring(i, i + 16);
+        let hexLeft = '', hexRight = '', ascii = '';
+        for (let j = 0; j < 16; j++) {
+          if (j < chunk.length) {
+            let code = chunk.charCodeAt(j) & 0xFF;
+            let hex = code.toString(16).padStart(2, '0').toUpperCase();
+            if (j < 8) hexLeft += hex + ' ';
+            else hexRight += hex + ' ';
+            ascii += (code >= 32 && code <= 126) ? chunk[j] : '.';
+          } else {
+            if (j < 8) hexLeft += '   ';
+            else hexRight += '   ';
+          }
+        }
+        lines.push(`${i.toString(16).padStart(8, '0').toUpperCase()}  ${hexLeft.padEnd(23)}  ${hexRight.padEnd(23)}  |${ascii}|`);
+      }
+      return lines.join('\n');
+    }
+
     function escapeHtml(t) {
-      return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return (t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
     function highlightCode(t, ext) {
       const kw = {
         py: /\b(def|class|import|from|return|if|elif|else|for|while|in|not|and|or|try|except|finally|with|as|pass|break|continue|raise|yield|lambda|True|False|None|self|async|await)\b/g,
         js: /\b(const|let|var|function|return|if|else|for|while|in|of|import|export|from|class|extends|new|this|async|await|try|catch|finally|throw|typeof|instanceof|null|undefined|true|false|=>|default|switch|case|break|continue)\b/g,
-        java: /\b(public|private|protected|class|interface|extends|implements|new|return|if|else|for|while|try|catch|finally|static|void|int|String|boolean|true|false|null|import|package|this|super)\b/g,
         default: /\b(if|else|for|while|return|function|class|import|export|const|let|var|new|this|null|true|false|undefined)\b/g,
       };
       const kwRe = kw[ext] || kw.default;
@@ -1675,126 +1577,175 @@
           .replace(/("(?:[^"\\]|\\.)*")\s*:/g, '<span class="hl-property">$1</span>:')
           .replace(/:\s*("(?:[^"\\]|\\.)*")/g, ': <span class="hl-string">$1</span>')
           .replace(/\b(\d+\.?\d*)\b/g, '<span class="hl-number">$1</span>')
-          .replace(/\b(true|false)\b/g, '<span class="hl-boolean">$1</span>')
-          .replace(/\bnull\b/g, '<span class="hl-null">null</span>')
-          .replace(/([{}\[\]])/g, '<span class="hl-bracket">$1</span>');
-      }
-      if (ext === 'xml') {
-        return t
-          .replace(/(&lt;\/?[a-zA-Z][^&gt;]*&gt;)/g, '<span class="hl-tag">$1</span>')
-          .replace(/([a-zA-Z-]+)=/g, '<span class="hl-attr">$1</span>=');
-      }
-      if (ext === 'yaml' || ext === 'yml') {
-        return t
-          .replace(/(^|\n)([a-zA-Z_][a-zA-Z0-9_-]*):/gm, '$1<span class="hl-property">$2</span>:')
-          .replace(/(#[^\n]*)/g, '<span class="hl-comment">$1</span>')
-          .replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, '<span class="hl-string">$1</span>');
+          .replace(/\b(true|false)\b/g, '<span class="hl-boolean">$1</span>');
       }
       return t;
     }
 
     function highlightWeb(t, ext) {
-      if (ext === 'css' || ext === 'scss') {
-        return t
-          .replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="hl-comment">$1</span>')
-          .replace(/([a-zA-Z-]+)\s*:/g, '<span class="hl-property">$1</span>:')
-          .replace(/(#[0-9a-fA-F]{3,8})/g, '<span class="hl-string">$1</span>')
-          .replace(/\b(\d+\.?\d*(?:px|em|rem|%|vh|vw|s|ms)?)\b/g, '<span class="hl-number">$1</span>');
-      }
-      return t
-        .replace(/(&lt;!--[\s\S]*?--&gt;)/g, '<span class="hl-comment">$1</span>')
-        .replace(/(&lt;\/?[a-zA-Z][^&gt;]*&gt;)/g, s => {
-          return s.replace(/([a-zA-Z-]+)=/g, '<span class="hl-attr">$1</span>=')
-            .replace(/&lt;\/?([a-zA-Z][a-zA-Z0-9]*)/, '&lt;<span class="hl-tag">$1</span>');
-        });
+      return t.replace(/(&lt;\/?[a-zA-Z][^&gt;]*&gt;)/g, '<span class="hl-tag">$1</span>');
     }
 
     function highlightShell(t) {
-      return t
-        .replace(/(#[^\n]*)/g, '<span class="hl-comment">$1</span>')
-        .replace(/\b(if|else|fi|then|for|do|done|while|case|esac|in|function|return|exit|echo|cd|ls|mkdir|rm|cp|mv|cat|grep|awk|sed|export|source|set|unset)\b/g, '<span class="hl-keyword">$1</span>')
-        .replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, '<span class="hl-string">$1</span>')
-        .replace(/\$[a-zA-Z_]\w*/g, '<span class="hl-function">$&</span>');
+      return t.replace(/(#[^\n]*)/g, '<span class="hl-comment">$1</span>')
+              .replace(/\b(if|else|fi|then|for|do|done|echo|cd|ls|rm|cp|mv)\b/g, '<span class="hl-keyword">$1</span>');
     }
 
     function highlightSQL(t) {
-      return t
-        .replace(/(--[^\n]*)/g, '<span class="hl-comment">$1</span>')
-        .replace(/\b(SELECT|FROM|WHERE|JOIN|LEFT|RIGHT|INNER|OUTER|ON|AND|OR|NOT|INSERT|INTO|VALUES|UPDATE|SET|DELETE|CREATE|TABLE|DROP|ALTER|INDEX|VIEW|AS|DISTINCT|ORDER|BY|GROUP|HAVING|LIMIT|OFFSET|COUNT|SUM|AVG|MAX|MIN|CASE|WHEN|THEN|ELSE|END|NULL|IS|IN|LIKE|BETWEEN)\b/gi,
-          m => '<span class="hl-keyword">' + m.toUpperCase() + '</span>')
-        .replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, '<span class="hl-string">$1</span>')
-        .replace(/\b(\d+\.?\d*)\b/g, '<span class="hl-number">$1</span>');
+      return t.replace(/\b(SELECT|FROM|WHERE|JOIN|LEFT|RIGHT|INNER|INSERT|UPDATE|DELETE|CREATE|DROP|ALTER)\b/gi,
+        m => '<span class="hl-keyword">' + m.toUpperCase() + '</span>');
     }
 
-    // ── LINE NUMBERS ──
+    // ── LINE NUMBERS & VIEW TOGGLES ──
     function renderLineNumbers(content) {
       const ln = document.getElementById('line-numbers');
-      const lines = content.split('\n');
+      const lines = (content || '').split('\n');
       ln.innerHTML = lines.map((_, i) => `<span class="line-num">${i + 1}</span>`).join('');
     }
 
     function toggleLineNumbers() {
-      state.lineNumbers = !state.lineNumbers;
-      const ln = document.getElementById('line-numbers');
-      const btn = document.getElementById('btn-ln');
-      ln.style.display = state.lineNumbers ? '' : 'none';
-      btn.style.borderColor = state.lineNumbers ? 'rgba(0,255,255,0.3)' : '';
-      btn.style.color = state.lineNumbers ? 'var(--c-cyan)' : '';
+      const tab = getCurrentTab();
+      if (!tab) return;
+      tab.lineNumbers = !tab.lineNumbers;
+      renderContent(tab);
     }
 
     function toggleWrap() {
-      const tc = document.getElementById('text-content');
-      const btn = document.getElementById('btn-wrap');
-      const isWrapped = tc.style.whiteSpace === 'pre-wrap' || tc.style.whiteSpace === '';
-      if (!isWrapped) {
-        tc.style.whiteSpace = 'pre-wrap';
-        btn.style.borderColor = 'rgba(0,255,255,0.3)'; btn.style.color = 'var(--c-cyan)';
+      const tab = getCurrentTab();
+      if (!tab) return;
+      tab.wrap = !tab.wrap;
+      renderContent(tab);
+    }
+
+    function toggleHexView() {
+      const tab = getCurrentTab();
+      if (!tab) return;
+      tab.isHexView = !tab.isHexView;
+      if (tab.isHexView) tab.isMdView = false;
+      renderContent(tab);
+    }
+
+    function toggleMarkdownView() {
+      const tab = getCurrentTab();
+      if (!tab) return;
+      tab.isMdView = !tab.isMdView;
+      if (tab.isMdView) tab.isHexView = false;
+      renderContent(tab);
+    }
+
+    // ── ZOOM CONTROLS ──
+    function zoomIn() {
+      state.fontSize = Math.min(32, state.fontSize + 2);
+      applyZoom();
+    }
+    function zoomOut() {
+      state.fontSize = Math.max(9, state.fontSize - 2);
+      applyZoom();
+    }
+    function zoomReset() {
+      state.fontSize = 14;
+      applyZoom();
+    }
+    function applyZoom() {
+      document.getElementById('text-content').style.fontSize = state.fontSize + 'px';
+      document.getElementById('line-numbers').style.fontSize = state.fontSize + 'px';
+      document.getElementById('sb-zoom').textContent = Math.round((state.fontSize / 14) * 100) + '%';
+    }
+
+    // ── THEME SELECTOR ──
+    function changeTheme(themeName) {
+      document.documentElement.setAttribute('data-theme', themeName);
+      showToast('THEME: ' + themeName.toUpperCase(), 'success');
+    }
+
+    // ── JUMP TO LINE ──
+    function openJumpModal() {
+      if (!getCurrentTab()) return;
+      document.getElementById('modal-jump').classList.add('active');
+      const inp = document.getElementById('jump-line-input');
+      inp.value = '';
+      inp.focus();
+    }
+    function closeJumpModal() {
+      document.getElementById('modal-jump').classList.remove('active');
+    }
+    function executeJumpToLine() {
+      const lineNum = parseInt(document.getElementById('jump-line-input').value, 10);
+      closeJumpModal();
+      if (isNaN(lineNum) || lineNum < 1) return;
+
+      const lnEls = document.querySelectorAll('.line-num');
+      if (lineNum <= lnEls.length) {
+        lnEls[lineNum - 1].scrollIntoView({ block: 'center' });
+        showToast('JUMPED TO LINE ' + lineNum, 'success');
       } else {
-        tc.style.whiteSpace = 'pre';
-        btn.style.borderColor = ''; btn.style.color = '';
+        showToast('LINE OUT OF RANGE', 'error');
       }
     }
 
-    // ── SEARCH ──
+    // ── SEARCH & MATCH NAVIGATION ──
     document.getElementById('search-input').addEventListener('keydown', e => {
-      if (e.key === 'Enter') doSearch();
+      if (e.key === 'Enter') {
+        doSearch(e.shiftKey ? -1 : 1);
+      }
     });
 
-    function doSearch() {
-      const q = document.getElementById('search-input').value.trim();
-      const tc = document.getElementById('text-content');
-      // Clear previous
-      tc.innerHTML = tc.innerHTML.replace(/<mark[^>]*>/g, '').replace(/<\/mark>/g, '');
+    function doSearch(direction = 1) {
+      const q = document.getElementById('search-input').value;
+      const tab = getCurrentTab();
+      if (!tab || !q.trim()) {
+        document.getElementById('sb-matches').textContent = '—';
+        return;
+      }
 
-      if (!q || !state.activeTab) { document.getElementById('sb-matches').textContent = '—'; return; }
-      const tab = state.tabs.find(t => t.id === state.activeTab);
-      if (!tab) return;
+      if (state.searchQuery !== q) {
+        state.searchQuery = q;
+        const raw = tab.isHexView ? (tab.hexDump || generateJsHexDump(tab.rawContent)) : tab.rawContent;
+        const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
 
-      const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-      let highlighted = highlight(tab.rawContent, tab.ext);
-      let count = 0;
-      highlighted = highlighted.replace(re, m => { count++; return `<mark class="search-match">${m}</mark>`; });
-      tc.innerHTML = highlighted;
-      document.getElementById('sb-matches').textContent = count > 0 ? count + ' MATCH' + (count > 1 ? 'ES' : '') : 'NO MATCH';
+        let match;
+        state.matchIndices = [];
+        while ((match = re.exec(raw)) !== null) {
+          state.matchIndices.push(match.index);
+        }
+        state.currentMatchIdx = state.matchIndices.length > 0 ? 0 : -1;
 
-      if (count > 0) {
-        const first = tc.querySelector('.search-match');
-        if (first) first.scrollIntoView({ block: 'center' });
-        showToast('◆ ' + count + ' MATCH' + (count > 1 ? 'ES' : '') + ' FOUND');
+        // Render highlighted search HTML
+        const tc = document.getElementById('text-content');
+        let html = escapeHtml(raw);
+        let count = 0;
+        html = html.replace(re, m => {
+          count++;
+          return `<mark class="search-match" id="match-idx-${count-1}">${m}</mark>`;
+        });
+        tc.innerHTML = html;
+      } else if (state.matchIndices.length > 0) {
+        state.currentMatchIdx = (state.currentMatchIdx + direction + state.matchIndices.length) % state.matchIndices.length;
+      }
+
+      const total = state.matchIndices.length;
+      if (total > 0) {
+        document.getElementById('sb-matches').textContent = `${state.currentMatchIdx + 1} / ${total} MATCHES`;
+        document.querySelectorAll('.search-match').forEach((el, idx) => {
+          el.classList.toggle('current', idx === state.currentMatchIdx);
+        });
+        const currentEl = document.getElementById(`match-idx-${state.currentMatchIdx}`);
+        if (currentEl) currentEl.scrollIntoView({ block: 'center', behavior: 'smooth' });
       } else {
-        showToast('NO MATCHES FOR: ' + q, 'error');
+        document.getElementById('sb-matches').textContent = '0 MATCHES';
+        showToast('NO MATCHES FOUND', 'error');
       }
     }
 
-    // ── STATS ──
+    // ── STATS & UTILS ──
     function updateFileStats(tab) {
       const lines = tab.rawContent.split('\n').length;
       const chars = tab.rawContent.length;
       document.getElementById('stat-lines').textContent = lines.toLocaleString();
       document.getElementById('stat-chars').textContent = chars.toLocaleString();
-      document.getElementById('stat-size').textContent = formatSize(chars);
-      document.getElementById('stat-enc').textContent = 'UTF-8';
-      document.getElementById('stat-type').textContent = tab.type.toUpperCase();
+      document.getElementById('stat-size').textContent = formatSize(tab.size || chars);
+      document.getElementById('stat-enc').textContent = tab.encoding || 'UTF-8';
+      document.getElementById('stat-type').textContent = tab.isBinary ? 'BINARY' : tab.type.toUpperCase();
     }
 
     function formatSize(bytes) {
@@ -1804,14 +1755,13 @@
     }
 
     function getFileType(ext) {
-      const code = ['js', 'ts', 'jsx', 'tsx', 'py', 'java', 'c', 'cpp', 'h', 'cs', 'go', 'rs', 'rb', 'php', 'lua', 'pl', 'r', 'jl', 'm', 'kt', 'scala', 'swift', 'vb'];
+      const code = ['js', 'ts', 'jsx', 'tsx', 'py', 'java', 'c', 'cpp', 'h', 'cs', 'go', 'rs', 'rb', 'php', 'lua', 'pl', 'r', 'jl', 'm', 'kt', 'scala', 'swift'];
       const data = ['json', 'yaml', 'yml', 'xml', 'csv', 'tsv', 'dif'];
-      const web = ['html', 'htm', 'xhtml', 'css', 'scss', 'sass', 'asp', 'aspx', 'jsp'];
-      const shell = ['sh', 'bash', 'zsh', 'bat', 'ps1', 'cmd', 'ahk'];
-      const sql = ['sql'];
+      const web = ['html', 'htm', 'xhtml', 'css', 'scss', 'sass'];
+      const shell = ['sh', 'bash', 'zsh', 'bat', 'ps1', 'cmd'];
       const cfg = ['ini', 'cfg', 'conf', 'env', 'properties', 'toml'];
-      const doc = ['md', 'markdown', 'rst', 'adoc', 'tex', 'ltx', 'rtf'];
-      if (code.includes(ext) || shell.includes(ext) || sql.includes(ext)) return 'code';
+      const doc = ['md', 'markdown', 'rst', 'adoc', 'tex'];
+      if (code.includes(ext) || shell.includes(ext)) return 'code';
       if (data.includes(ext)) return 'data';
       if (web.includes(ext)) return 'code';
       if (cfg.includes(ext)) return 'config';
@@ -1819,24 +1769,38 @@
       return 'text';
     }
 
-    // ── COPY ──
     function copyContent() {
-      const tab = state.tabs.find(t => t.id === state.activeTab);
+      const tab = getCurrentTab();
       if (!tab) return;
       navigator.clipboard.writeText(tab.rawContent).then(() => showToast('◆ CONTENT COPIED', 'success'));
     }
 
-    // ── STATUS ──
     function updateStatusbar() {
       document.getElementById('sb-tabs').textContent = state.tabs.length;
     }
 
-    document.getElementById('text-content').addEventListener('click', e => {
+    // ── HOTKEYS ──
+    document.addEventListener('keydown', e => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'o' || e.key === 'O') { e.preventDefault(); openFileDialog(); }
+        else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); document.getElementById('search-input').focus(); }
+        else if (e.key === 'w' || e.key === 'W') { e.preventDefault(); closeCurrentTab(); }
+        else if (e.key === 'g' || e.key === 'G') { e.preventDefault(); openJumpModal(); }
+        else if (e.key === 'h' || e.key === 'H') { e.preventDefault(); toggleHexView(); }
+        else if (e.key === 'm' || e.key === 'M') { e.preventDefault(); toggleMarkdownView(); }
+        else if (e.key === '=') { e.preventDefault(); zoomIn(); }
+        else if (e.key === '-') { e.preventDefault(); zoomOut(); }
+        else if (e.key === '0') { e.preventDefault(); zoomReset(); }
+      } else if (e.key === 'Escape') {
+        closeJumpModal();
+      }
+    });
+
+    document.getElementById('text-content').addEventListener('click', () => {
       const tc = document.getElementById('text-content');
       const text = tc.innerText;
       const sel = window.getSelection();
       if (!sel.rangeCount) return;
-      // approximate line/col
       const offset = sel.getRangeAt(0).startOffset;
       const before = text.substring(0, offset);
       const ln = (before.match(/\n/g) || []).length + 1;
@@ -1844,7 +1808,6 @@
       document.getElementById('sb-pos').textContent = `LN ${ln} : COL ${col}`;
     });
 
-    // ── TOAST ──
     function showToast(msg, type = '') {
       const t = document.getElementById('toast');
       document.getElementById('toast-msg').textContent = msg;
@@ -1852,18 +1815,11 @@
       setTimeout(() => { t.className = ''; }, 3000);
     }
 
-    // ── PYWEBVIEW BRIDGE ──
     window.addEventListener('pywebviewready', () => {
-      // Python side can call this to load a file directly
-      window.loadFileFromPython = function (fileData) {
-        addTab(fileData);
-      };
+      window.loadFileFromPython = function (fileData) { addTab(fileData); };
     });
 
-    // Handle external file open (command line args via python)
-    window.openExternalFile = function (fileData) {
-      addTab(fileData);
-    };
+    window.openExternalFile = function (fileData) { addTab(fileData); };
   </script>
 </body>
 
