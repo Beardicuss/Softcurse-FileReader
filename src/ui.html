@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SOFTCURSE/SYS — FILE READER v1.0</title>
+  <title>SOFTCURSE/SYS — FILE READER & EDITOR v1.0</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap"
@@ -94,7 +94,6 @@
       user-select: none;
     }
 
-    /* ── GRID BACKGROUND ── */
     body::before {
       content: '';
       position: fixed;
@@ -108,7 +107,6 @@
       background-size: 40px 40px, 40px 40px, 100% 4px;
     }
 
-    /* ── NOISE OVERLAY ── */
     body::after {
       content: '';
       position: fixed;
@@ -121,7 +119,6 @@
       mix-blend-mode: overlay;
     }
 
-    /* ── CUSTOM CURSOR ── */
     #cursor {
       position: fixed;
       top: 0;
@@ -142,46 +139,18 @@
       filter: drop-shadow(0 0 6px #39ff14) drop-shadow(0 0 18px #39ff1466);
     }
 
-    #s-idle {
-      opacity: 1;
-      transition: opacity 0.2s;
-    }
+    #s-idle { opacity: 1; transition: opacity 0.2s; }
+    #s-move { opacity: 0; transition: opacity 0.2s; }
+    #s-click { opacity: 0; transition: opacity 0.08s; }
 
-    #s-move {
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
+    body.moving #s-idle { opacity: 0; }
+    body.moving #s-move { opacity: 1; }
+    body.moving #s-click { opacity: 0; }
 
-    #s-click {
-      opacity: 0;
-      transition: opacity 0.08s;
-    }
+    body.clicking #s-idle { opacity: 0; }
+    body.clicking #s-move { opacity: 0; }
+    body.clicking #s-click { opacity: 1; }
 
-    body.moving #s-idle {
-      opacity: 0;
-    }
-
-    body.moving #s-move {
-      opacity: 1;
-    }
-
-    body.moving #s-click {
-      opacity: 0;
-    }
-
-    body.clicking #s-idle {
-      opacity: 0;
-    }
-
-    body.clicking #s-move {
-      opacity: 0;
-    }
-
-    body.clicking #s-click {
-      opacity: 1;
-    }
-
-    /* ── LAYOUT ── */
     #app {
       position: relative;
       z-index: 1;
@@ -190,7 +159,6 @@
       height: 100vh;
     }
 
-    /* ── TITLEBAR ── */
     #titlebar {
       display: flex;
       align-items: center;
@@ -216,19 +184,7 @@
       animation: scan-h 4s linear infinite;
     }
 
-    @keyframes scan-h {
-      0% {
-        opacity: 0.3;
-      }
-
-      50% {
-        opacity: 1;
-      }
-
-      100% {
-        opacity: 0.3;
-      }
-    }
+    @keyframes scan-h { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
 
     #title-logo {
       font-family: var(--font-display);
@@ -275,7 +231,6 @@
       box-shadow: var(--glow-accent);
     }
 
-    /* ── TOOLBAR ── */
     #toolbar {
       display: flex;
       align-items: center;
@@ -347,9 +302,7 @@
       flex-shrink: 0;
     }
 
-    .toolbar-spacer {
-      flex: 1;
-    }
+    .toolbar-spacer { flex: 1; }
 
     #search-wrap {
       display: flex;
@@ -382,9 +335,7 @@
       caret-color: var(--c-accent);
     }
 
-    #search-input::placeholder {
-      color: var(--c-text-ghost);
-    }
+    #search-input::placeholder { color: var(--c-text-ghost); }
 
     .select-theme {
       background: var(--c-bg);
@@ -397,7 +348,6 @@
       outline: none;
     }
 
-    /* ── TABS ── */
     #tabs-bar {
       display: flex;
       align-items: flex-end;
@@ -483,14 +433,12 @@
       border: 1px solid rgba(255, 107, 53, 0.2);
     }
 
-    /* ── MAIN AREA ── */
     #main-area {
       display: flex;
       flex: 1;
       overflow: hidden;
     }
 
-    /* ── SIDEBAR ── */
     #sidebar {
       width: 220px;
       flex-shrink: 0;
@@ -541,58 +489,20 @@
       border-left-color: var(--c-accent);
     }
 
-    .file-item-icon {
-      font-size: 13px;
-      flex-shrink: 0;
-    }
-
-    .file-item-name {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--c-text-secondary);
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .file-item.active .file-item-name {
-      color: var(--c-accent);
-    }
-
-    .file-item-size {
-      font-family: var(--font-mono);
-      font-size: 9px;
-      color: var(--c-text-ghost);
-    }
+    .file-item-icon { font-size: 13px; flex-shrink: 0; }
+    .file-item-name { font-family: var(--font-mono); font-size: 11px; color: var(--c-text-secondary); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-item.active .file-item-name { color: var(--c-accent); }
+    .file-item-size { font-family: var(--font-mono); font-size: 9px; color: var(--c-text-ghost); }
 
     .sidebar-section {
       border-top: 1px solid var(--c-border);
       padding: 12px 16px;
     }
 
-    .stat-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-    }
+    .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .stat-label { font-family: var(--font-tactical); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--c-text-ghost); }
+    .stat-value { font-family: var(--font-mono); font-size: 11px; color: var(--c-accent-soft); }
 
-    .stat-label {
-      font-family: var(--font-tactical);
-      font-size: 10px;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--c-text-ghost);
-    }
-
-    .stat-value {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--c-accent-soft);
-    }
-
-    /* ── EDITOR AREA ── */
     #editor-area {
       flex: 1;
       display: flex;
@@ -601,7 +511,6 @@
       position: relative;
     }
 
-    /* ── WELCOME SCREEN ── */
     #welcome {
       flex: 1;
       display: flex;
@@ -642,12 +551,7 @@
       text-align: center;
     }
 
-    .welcome-actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
+    .welcome-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
 
     .welcome-btn {
       display: flex;
@@ -674,13 +578,7 @@
       transform: translateY(-1px);
     }
 
-    .welcome-btn svg {
-      width: 18px;
-      height: 18px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 1.5;
-    }
+    .welcome-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.5; }
 
     .welcome-formats {
       font-family: var(--font-mono);
@@ -702,7 +600,6 @@
       font-size: 10px;
     }
 
-    /* ── DROP ZONE ── */
     #drop-overlay {
       position: fixed;
       inset: 0;
@@ -715,9 +612,7 @@
       gap: 20px;
     }
 
-    #drop-overlay.active {
-      display: flex;
-    }
+    #drop-overlay.active { display: flex; }
 
     .drop-box {
       border: 2px dashed var(--c-accent);
@@ -727,10 +622,7 @@
       animation: drop-pulse 1.5s ease-in-out infinite;
     }
 
-    @keyframes drop-pulse {
-      0%, 100% { box-shadow: var(--glow-accent); }
-      50% { box-shadow: var(--glow-accent-lg); }
-    }
+    @keyframes drop-pulse { 0%, 100% { box-shadow: var(--glow-accent); } 50% { box-shadow: var(--glow-accent-lg); } }
 
     .drop-title {
       font-family: var(--font-display);
@@ -750,7 +642,6 @@
       margin-top: 8px;
     }
 
-    /* ── FILE VIEWER ── */
     #file-viewer {
       flex: 1;
       display: none;
@@ -758,9 +649,7 @@
       overflow: hidden;
     }
 
-    #file-viewer.active {
-      display: flex;
-    }
+    #file-viewer.active { display: flex; }
 
     #file-header {
       display: flex;
@@ -772,23 +661,9 @@
       flex-shrink: 0;
     }
 
-    .file-meta {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .file-meta-name {
-      font-family: var(--font-mono);
-      font-size: 13px;
-      color: var(--c-accent);
-    }
-
-    .file-meta-path {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--c-text-ghost);
-    }
+    .file-meta { display: flex; align-items: center; gap: 12px; }
+    .file-meta-name { font-family: var(--font-mono); font-size: 13px; color: var(--c-accent); }
+    .file-meta-path { font-family: var(--font-mono); font-size: 10px; color: var(--c-text-ghost); }
 
     .file-badge {
       font-family: var(--font-tactical);
@@ -811,7 +686,6 @@
       overflow: hidden;
     }
 
-    /* ── LINE NUMBERS ── */
     #line-numbers {
       width: 56px;
       flex-shrink: 0;
@@ -827,12 +701,8 @@
       text-align: right;
     }
 
-    .line-num {
-      padding-right: 12px;
-      display: block;
-    }
+    .line-num { padding-right: 12px; display: block; }
 
-    /* ── TEXT CONTENT ── */
     #text-content {
       flex: 1;
       overflow: auto;
@@ -847,19 +717,19 @@
       tab-size: 4;
       caret-color: var(--c-accent);
       user-select: text;
-      cursor: text;
+      outline: none;
     }
 
     #text-content::-webkit-scrollbar { width: 6px; height: 6px; }
     #text-content::-webkit-scrollbar-thumb { background: rgba(0, 255, 255, 0.2); }
     #text-content::-webkit-scrollbar-thumb:hover { background: rgba(0, 255, 255, 0.4); }
 
-    /* MARKDOWN RENDER STYLES */
     #text-content.md-render-mode {
       font-family: var(--font-body);
       white-space: normal;
       line-height: 1.7;
     }
+
     #text-content.md-render-mode h1,
     #text-content.md-render-mode h2,
     #text-content.md-render-mode h3 {
@@ -884,13 +754,8 @@
       margin: 1em 0;
       overflow-x: auto;
     }
-    #text-content.md-render-mode pre code {
-      background: transparent;
-      border: none;
-      padding: 0;
-    }
+    #text-content.md-render-mode pre code { background: transparent; border: none; padding: 0; }
 
-    /* HIGHLIGHT CLASSES */
     .hl-keyword { color: #0088ff; }
     .hl-string { color: #00ffc8; }
     .hl-comment { color: rgba(0, 255, 255, 0.35); font-style: italic; }
@@ -901,7 +766,6 @@
     .hl-property { color: #ff9500; }
     .hl-boolean { color: #ff6b35; }
 
-    /* SEARCH HIGHLIGHTS */
     .search-match {
       background: rgba(255, 215, 0, 0.3);
       color: var(--c-gold);
@@ -914,7 +778,6 @@
       outline: 2px solid var(--c-orange);
     }
 
-    /* ── STATUSBAR ── */
     #statusbar {
       display: flex;
       align-items: center;
@@ -946,7 +809,6 @@
     .blink-cursor { font-family: var(--font-mono); font-size: 12px; color: var(--c-accent); animation: blink 0.8s step-end infinite; }
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-    /* ── MODAL JUMP TO LINE ── */
     #modal-jump {
       position: fixed;
       inset: 0;
@@ -977,7 +839,6 @@
       margin-bottom: 14px;
     }
 
-    /* ── TOAST ── */
     #toast {
       position: fixed;
       bottom: 40px;
@@ -1007,7 +868,6 @@
     #toast.error { border-left-color: var(--c-magenta); color: var(--c-magenta); }
     #toast.success { border-left-color: var(--c-green); color: var(--c-green); }
 
-    /* ── ANIMATIONS ── */
     @keyframes fade-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
     .fade-up { animation: fade-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
     @keyframes scan-sweep { 0% { top: -2px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
@@ -1046,7 +906,7 @@
   <div id="drop-overlay">
     <div class="drop-box">
       <div class="drop-title">◆ DROP FILES HERE</div>
-      <div class="drop-sub">Release to open in SOFTCURSE reader</div>
+      <div class="drop-sub">Release to open in SOFTCURSE reader & editor</div>
     </div>
   </div>
 
@@ -1071,7 +931,7 @@
   <div id="app">
     <!-- Titlebar -->
     <div id="titlebar">
-      <div id="title-logo">◆ SOFTCURSE/SYS — FILE READER</div>
+      <div id="title-logo">◆ SOFTCURSE/SYS — FILE READER & EDITOR</div>
       <div id="title-status">
         <span id="status-clock">--:--:--</span> &nbsp;·&nbsp;
         <span>BUILD v1.0.0</span>
@@ -1093,6 +953,8 @@
         <svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><line x1="12" y1="11" x2="12" y2="17" /><line x1="9" y1="14" x2="15" y2="14" /></svg>
         OPEN FOLDER
       </button>
+      <button class="tool-btn primary" onclick="saveCurrentFile()" style="border-color:var(--c-green);color:var(--c-green);">SAVE (Ctrl+S)</button>
+      <button class="tool-btn" onclick="saveCurrentFileAs()">SAVE AS...</button>
       <div class="toolbar-sep"></div>
       <button class="tool-btn" id="btn-wrap" onclick="toggleWrap()">WRAP</button>
       <button class="tool-btn active" id="btn-ln" onclick="toggleLineNumbers()">LN NUMS</button>
@@ -1153,7 +1015,7 @@
         <div id="welcome" class="fade-up">
           <div class="welcome-glow"></div>
           <div class="welcome-logo">SOFTCURSE FILE READER</div>
-          <div class="welcome-sub">◆ UNIVERSAL TEXT FILE SYSTEM · v1.0.0 ◆</div>
+          <div class="welcome-sub">◆ UNIVERSAL TEXT FILE & EDITING SYSTEM · v1.0.0 ◆</div>
           <div class="welcome-actions">
             <button class="welcome-btn" onclick="openFileDialog()">
               <svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg>
@@ -1165,7 +1027,7 @@
             </button>
           </div>
           <div style="font-family:var(--font-tactical);font-size:11px;letter-spacing:0.15em;color:var(--c-text-ghost);text-transform:uppercase;">
-            Or drag & drop files anywhere — supports text & binary hex inspection
+            Full editing, writing, fixing & saving capabilities built-in
           </div>
           <div class="welcome-formats">
             <span class="format-tag">.txt</span><span class="format-tag">.md</span><span class="format-tag">.py</span><span class="format-tag">.js</span><span class="format-tag">.ts</span><span class="format-tag">.html</span><span class="format-tag">.css</span><span class="format-tag">.json</span><span class="format-tag">.xml</span><span class="format-tag">.yaml</span><span class="format-tag">.csv</span><span class="format-tag">.sql</span><span class="format-tag">.sh</span><span class="format-tag">.bat</span><span class="format-tag">.bin (hex)</span><span class="format-tag">+ 100 more</span>
@@ -1183,7 +1045,7 @@
           </div>
           <div id="content-wrap">
             <div id="line-numbers"></div>
-            <div id="text-content" contenteditable="false" spellcheck="false"></div>
+            <div id="text-content" contenteditable="true" spellcheck="false"></div>
           </div>
         </div>
       </div>
@@ -1227,7 +1089,7 @@
   <script>
     // ── STATE ──
     const state = {
-      tabs: [], // { id, name, path, ext, content, rawContent, hexDump, encoding, isBinary, wrap, lineNumbers, isHexView, isMdView, type }
+      tabs: [], // { id, name, path, ext, content, rawContent, hexDump, encoding, isBinary, isDirty, wrap, lineNumbers, isHexView, isMdView, type }
       activeTab: null,
       fontSize: 14,
       searchQuery: '',
@@ -1275,7 +1137,6 @@
       files.forEach(f => readFileObject(f));
     });
 
-    // ── FILE READING (browser File API fallback) ──
     function readFileObject(fileObj) {
       const reader = new FileReader();
       reader.onload = ev => {
@@ -1310,6 +1171,7 @@
         inp.click();
       }
     }
+
     function openFolderDialog() {
       if (window.pywebview) {
         pywebview.api.open_folder_dialog().then(results => {
@@ -1322,6 +1184,66 @@
         inp.click();
       }
     }
+
+    function saveCurrentFile() {
+      const tab = getCurrentTab();
+      if (!tab) return;
+      const tc = document.getElementById('text-content');
+      const currentText = tc.innerText;
+
+      if (window.pywebview) {
+        pywebview.api.save_file(tab.path, currentText).then(res => {
+          if (res && res.path) {
+            tab.path = res.path;
+            tab.name = res.name;
+            tab.rawContent = currentText;
+            tab.isDirty = false;
+            renderTabs();
+            updateFileStats(tab);
+            showToast('◆ SAVED: ' + tab.name, 'success');
+          } else if (res && res.error) {
+            showToast('SAVE ERROR: ' + res.error, 'error');
+          }
+        });
+      } else {
+        // Fallback save via download blob
+        const blob = new Blob([currentText], { type: 'text/plain;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = tab.name || 'document.txt';
+        a.click();
+        tab.isDirty = false;
+        renderTabs();
+        showToast('◆ FILE DOWNLOADED', 'success');
+      }
+    }
+
+    function saveCurrentFileAs() {
+      const tab = getCurrentTab();
+      if (!tab) return;
+      const tc = document.getElementById('text-content');
+      const currentText = tc.innerText;
+
+      if (window.pywebview) {
+        pywebview.api.save_file_as_dialog(currentText, tab.name).then(res => {
+          if (res && res.path) {
+            tab.path = res.path;
+            tab.name = res.name;
+            tab.ext = res.ext;
+            tab.rawContent = currentText;
+            tab.isDirty = false;
+            renderTabs();
+            updateFileStats(tab);
+            showToast('◆ SAVED AS: ' + tab.name, 'success');
+          } else if (res && res.error) {
+            showToast('SAVE ERROR: ' + res.error, 'error');
+          }
+        });
+      } else {
+        saveCurrentFile();
+      }
+    }
+
     function minimizeWindow() { if (window.pywebview) pywebview.api.minimize(); }
     function maximizeWindow() { if (window.pywebview) pywebview.api.maximize(); }
     function closeWindow() { if (window.pywebview) pywebview.api.close_window(); }
@@ -1343,6 +1265,7 @@
         hexDump: fileData.hex_dump || '',
         encoding: fileData.encoding || 'UTF-8',
         isBinary: isBin,
+        isDirty: false,
         wrap: false,
         lineNumbers: true,
         isHexView: isBin,
@@ -1395,7 +1318,8 @@
       state.tabs.forEach(tab => {
         const el = document.createElement('div');
         el.className = 'tab' + (tab.id === state.activeTab ? ' active' : '');
-        el.innerHTML = `<span class="tab-ext">.${tab.ext}</span><span style="max-width:120px;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(tab.name)}</span><span class="tab-close" data-id="${tab.id}">✕</span>`;
+        const dirtyMark = tab.isDirty ? ' *' : '';
+        el.innerHTML = `<span class="tab-ext">.${tab.ext}</span><span style="max-width:120px;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(tab.name)}${dirtyMark}</span><span class="tab-close" data-id="${tab.id}">✕</span>`;
         el.addEventListener('click', e => {
           if (e.target.classList.contains('tab-close')) { closeTab(tab.id); return; }
           activateTab(tab.id);
@@ -1415,20 +1339,22 @@
         const isActive = tab.id === state.activeTab;
         const el = document.createElement('div');
         el.className = 'file-item' + (isActive ? ' active' : '');
+        const dirtyMark = tab.isDirty ? ' *' : '';
         const size = formatSize(tab.size || tab.rawContent.length);
-        el.innerHTML = `<span class="file-item-icon">${icon}</span><span class="file-item-name">${escapeHtml(tab.name)}</span><span class="file-item-size">${size}</span>`;
+        el.innerHTML = `<span class="file-item-icon">${icon}</span><span class="file-item-name">${escapeHtml(tab.name)}${dirtyMark}</span><span class="file-item-size">${size}</span>`;
         el.addEventListener('click', () => activateTab(tab.id));
         list.appendChild(el);
       });
     }
 
-    // ── CONTENT RENDERING ──
+    // ── CONTENT RENDERING & EDITING ──
     function renderContent(tab) {
       document.getElementById('welcome').style.display = 'none';
       const viewer = document.getElementById('file-viewer');
       viewer.classList.add('active');
 
-      document.getElementById('fh-name').textContent = tab.name;
+      const dirtyTag = tab.isDirty ? ' [MODIFIED]' : '';
+      document.getElementById('fh-name').textContent = tab.name + dirtyTag;
       document.getElementById('fh-path').textContent = tab.path;
       const badge = document.getElementById('fh-badge');
       const bm = { text: 'badge-text TEXT', code: 'badge-code CODE', data: 'badge-data DATA', doc: 'badge-doc DOC', config: 'badge-text CONFIG' };
@@ -1436,7 +1362,6 @@
       badge.className = 'file-badge ' + bv.split(' ')[0];
       badge.textContent = bv.split(' ')[1];
 
-      // Sync button states
       document.getElementById('btn-hex').classList.toggle('active', tab.isHexView);
       document.getElementById('btn-md').classList.toggle('active', tab.isMdView);
       document.getElementById('btn-ln').classList.toggle('active', tab.lineNumbers);
@@ -1448,48 +1373,49 @@
 
       if (tab.isHexView) {
         textEl.classList.remove('md-render-mode');
+        textEl.contentEditable = 'false';
         textEl.style.whiteSpace = 'pre';
         const dump = tab.hexDump || generateJsHexDump(tab.rawContent);
         textEl.innerHTML = escapeHtml(dump);
         renderLineNumbers(dump);
       } else if (tab.isMdView) {
         textEl.classList.add('md-render-mode');
+        textEl.contentEditable = 'false';
         textEl.style.whiteSpace = 'normal';
         textEl.innerHTML = renderSimpleMarkdown(tab.rawContent);
         renderLineNumbers(tab.rawContent);
       } else {
         textEl.classList.remove('md-render-mode');
+        textEl.contentEditable = 'true';
         textEl.style.whiteSpace = tab.wrap ? 'pre-wrap' : 'pre';
-        textEl.innerHTML = highlight(tab.rawContent, tab.ext);
+        textEl.innerText = tab.rawContent;
         renderLineNumbers(tab.rawContent);
       }
 
       updateFileStats(tab);
-      document.getElementById('sb-file').textContent = tab.name.toUpperCase();
+      document.getElementById('sb-file').textContent = (tab.name + dirtyTag).toUpperCase();
     }
+
+    // Listen for edits in text content
+    const textEl = document.getElementById('text-content');
+    textEl.addEventListener('input', () => {
+      const tab = getCurrentTab();
+      if (!tab || tab.isHexView || tab.isMdView) return;
+      const newText = textEl.innerText;
+      if (newText !== tab.rawContent) {
+        tab.rawContent = newText;
+        if (!tab.isDirty) {
+          tab.isDirty = true;
+          renderTabs();
+        }
+        renderLineNumbers(newText);
+        updateFileStats(tab);
+      }
+    });
 
     function showWelcome() {
       document.getElementById('welcome').style.display = 'flex';
       document.getElementById('file-viewer').classList.remove('active');
-    }
-
-    // ── SYNTAX & MARKDOWN HIGHLIGHTING ──
-    function highlight(content, ext) {
-      const escaped = escapeHtml(content);
-      const codeExts = ['js', 'ts', 'jsx', 'tsx', 'py', 'java', 'c', 'cpp', 'h', 'cs', 'go', 'rs', 'rb', 'php', 'lua', 'pl', 'r', 'jl', 'm', 'kt', 'scala', 'swift'];
-      const dataExts = ['json', 'yaml', 'yml', 'xml', 'csv', 'tsv'];
-      const webExts = ['html', 'htm', 'xhtml', 'css', 'scss', 'sass'];
-      const shellExts = ['sh', 'bash', 'zsh', 'bat', 'ps1', 'cmd'];
-      const sqlExts = ['sql'];
-
-      let html = escaped;
-      if (codeExts.includes(ext)) html = highlightCode(escaped, ext);
-      else if (dataExts.includes(ext)) html = highlightData(escaped, ext);
-      else if (webExts.includes(ext)) html = highlightWeb(escaped, ext);
-      else if (shellExts.includes(ext)) html = highlightShell(escaped);
-      else if (sqlExts.includes(ext)) html = highlightSQL(escaped);
-
-      return parseAnsi(html);
     }
 
     function parseAnsi(text) {
@@ -1555,48 +1481,6 @@
       return (t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
-    function highlightCode(t, ext) {
-      const kw = {
-        py: /\b(def|class|import|from|return|if|elif|else|for|while|in|not|and|or|try|except|finally|with|as|pass|break|continue|raise|yield|lambda|True|False|None|self|async|await)\b/g,
-        js: /\b(const|let|var|function|return|if|else|for|while|in|of|import|export|from|class|extends|new|this|async|await|try|catch|finally|throw|typeof|instanceof|null|undefined|true|false|=>|default|switch|case|break|continue)\b/g,
-        default: /\b(if|else|for|while|return|function|class|import|export|const|let|var|new|this|null|true|false|undefined)\b/g,
-      };
-      const kwRe = kw[ext] || kw.default;
-      return t
-        .replace(/(\/\/[^\n]*)/g, '<span class="hl-comment">$1</span>')
-        .replace(/(#[^\n]*)/g, '<span class="hl-comment">$1</span>')
-        .replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)/g, '<span class="hl-string">$1</span>')
-        .replace(/\b(\d+\.?\d*)\b/g, '<span class="hl-number">$1</span>')
-        .replace(kwRe, '<span class="hl-keyword">$1</span>')
-        .replace(/([a-zA-Z_]\w*)\s*(?=\()/g, '<span class="hl-function">$1</span>');
-    }
-
-    function highlightData(t, ext) {
-      if (ext === 'json') {
-        return t
-          .replace(/("(?:[^"\\]|\\.)*")\s*:/g, '<span class="hl-property">$1</span>:')
-          .replace(/:\s*("(?:[^"\\]|\\.)*")/g, ': <span class="hl-string">$1</span>')
-          .replace(/\b(\d+\.?\d*)\b/g, '<span class="hl-number">$1</span>')
-          .replace(/\b(true|false)\b/g, '<span class="hl-boolean">$1</span>');
-      }
-      return t;
-    }
-
-    function highlightWeb(t, ext) {
-      return t.replace(/(&lt;\/?[a-zA-Z][^&gt;]*&gt;)/g, '<span class="hl-tag">$1</span>');
-    }
-
-    function highlightShell(t) {
-      return t.replace(/(#[^\n]*)/g, '<span class="hl-comment">$1</span>')
-              .replace(/\b(if|else|fi|then|for|do|done|echo|cd|ls|rm|cp|mv)\b/g, '<span class="hl-keyword">$1</span>');
-    }
-
-    function highlightSQL(t) {
-      return t.replace(/\b(SELECT|FROM|WHERE|JOIN|LEFT|RIGHT|INNER|INSERT|UPDATE|DELETE|CREATE|DROP|ALTER)\b/gi,
-        m => '<span class="hl-keyword">' + m.toUpperCase() + '</span>');
-    }
-
-    // ── LINE NUMBERS & VIEW TOGGLES ──
     function renderLineNumbers(content) {
       const ln = document.getElementById('line-numbers');
       const lines = (content || '').split('\n');
@@ -1633,7 +1517,6 @@
       renderContent(tab);
     }
 
-    // ── ZOOM CONTROLS ──
     function zoomIn() {
       state.fontSize = Math.min(32, state.fontSize + 2);
       applyZoom();
@@ -1652,13 +1535,11 @@
       document.getElementById('sb-zoom').textContent = Math.round((state.fontSize / 14) * 100) + '%';
     }
 
-    // ── THEME SELECTOR ──
     function changeTheme(themeName) {
       document.documentElement.setAttribute('data-theme', themeName);
       showToast('THEME: ' + themeName.toUpperCase(), 'success');
     }
 
-    // ── JUMP TO LINE ──
     function openJumpModal() {
       if (!getCurrentTab()) return;
       document.getElementById('modal-jump').classList.add('active');
@@ -1683,7 +1564,6 @@
       }
     }
 
-    // ── SEARCH & MATCH NAVIGATION ──
     document.getElementById('search-input').addEventListener('keydown', e => {
       if (e.key === 'Enter') {
         doSearch(e.shiftKey ? -1 : 1);
@@ -1710,7 +1590,6 @@
         }
         state.currentMatchIdx = state.matchIndices.length > 0 ? 0 : -1;
 
-        // Render highlighted search HTML
         const tc = document.getElementById('text-content');
         let html = escapeHtml(raw);
         let count = 0;
@@ -1737,7 +1616,6 @@
       }
     }
 
-    // ── STATS & UTILS ──
     function updateFileStats(tab) {
       const lines = tab.rawContent.split('\n').length;
       const chars = tab.rawContent.length;
@@ -1779,10 +1657,11 @@
       document.getElementById('sb-tabs').textContent = state.tabs.length;
     }
 
-    // ── HOTKEYS ──
     document.addEventListener('keydown', e => {
       if (e.ctrlKey || e.metaKey) {
-        if (e.key === 'o' || e.key === 'O') { e.preventDefault(); openFileDialog(); }
+        if (e.shiftKey && (e.key === 's' || e.key === 'S')) { e.preventDefault(); saveCurrentFileAs(); }
+        else if (e.key === 's' || e.key === 'S') { e.preventDefault(); saveCurrentFile(); }
+        else if (e.key === 'o' || e.key === 'O') { e.preventDefault(); openFileDialog(); }
         else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); document.getElementById('search-input').focus(); }
         else if (e.key === 'w' || e.key === 'W') { e.preventDefault(); closeCurrentTab(); }
         else if (e.key === 'g' || e.key === 'G') { e.preventDefault(); openJumpModal(); }

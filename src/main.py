@@ -1,6 +1,6 @@
 """
 SOFTCURSE FILE READER — v1.0.0
-Universal Text File Viewer — Python + pywebview
+Universal Text File Viewer & Editor — Python + pywebview
 """
 
 import os
@@ -90,7 +90,6 @@ def is_binary_data(sample_bytes):
         return False
     if b'\x00' in sample_bytes:
         return True
-    # Count non-text printable ascii/control bytes
     text_chars = bytearray({7, 8, 9, 10, 12, 13, 27} | set(range(0x20, 0x100)) - {0x7f})
     non_text = sum(1 for b in sample_bytes if b not in text_chars)
     return (non_text / len(sample_bytes)) > 0.30
@@ -122,6 +121,16 @@ def read_text_file(path):
     return None, None
 
 
+def write_file_content(path, content, encoding='utf-8'):
+    """Save text content to file at specified path."""
+    try:
+        with open(path, 'w', encoding=encoding, errors='replace') as f:
+            f.write(content)
+        return True, "File saved successfully."
+    except Exception as e:
+        return False, str(e)
+
+
 def build_file_data(path):
     """Build a dict with file info for the frontend."""
     name = os.path.basename(path)
@@ -140,7 +149,6 @@ def build_file_data(path):
             'hex_dump': '',
         }
 
-    # Inspect raw sample for binary detection
     try:
         with open(path, 'rb') as f:
             raw_sample = f.read(8192)
@@ -245,7 +253,32 @@ class SoftcurseAPI:
                         results.append(fd)
         except Exception as e:
             print(f'Folder read error: {e}')
-        return results[:50]  # limit to 50 files per folder
+        return results[:50]
+
+    def save_file(self, path, content):
+        """Save content back to existing file path."""
+        if not path or not os.path.exists(path):
+            return self.save_file_as_dialog(content, os.path.basename(path or 'untitled.txt'))
+        success, msg = write_file_content(path, content)
+        if success:
+            return build_file_data(path)
+        return {'error': msg}
+
+    def save_file_as_dialog(self, content, default_name='untitled.txt'):
+        """Open Save As dialog and save file."""
+        if not webview or not self._window:
+            return {'error': 'Window not available'}
+        save_path = self._window.create_file_dialog(
+            webview.SAVE_DIALOG,
+            save_filename=default_name,
+        )
+        if not save_path:
+            return {'cancelled': True}
+        path = save_path[0] if isinstance(save_path, (list, tuple)) else save_path
+        success, msg = write_file_content(path, content)
+        if success:
+            return build_file_data(path)
+        return {'error': msg}
 
     def minimize(self):
         if self._window:
@@ -261,9 +294,7 @@ class SoftcurseAPI:
 
 
 def get_html_path():
-    """Find the UI HTML file whether running frozen or from source."""
     if getattr(sys, 'frozen', False):
-        # Running as exe
         base = sys._MEIPASS
     else:
         base = os.path.dirname(os.path.abspath(__file__))
@@ -271,9 +302,8 @@ def get_html_path():
 
 
 def load_cli_files(window, paths):
-    """Load files passed as command-line arguments after the window is ready."""
     import time
-    time.sleep(1.2)  # wait for JS to be ready
+    time.sleep(1.2)
     for p in paths:
         if os.path.isfile(p):
             fd = build_file_data(p)
@@ -288,25 +318,25 @@ def main():
 
     html_path = get_html_path()
     
-    # Create the window first so we can bind the API
     window = webview.create_window(
-        title='SOFTCURSE FILE READER v1.0',
+        title='SOFTCURSE FILE READER & EDITOR v1.0',
         url=f'file:///{html_path}' if sys.platform == 'win32' else html_path,
         width=1280,
         height=800,
         min_size=(800, 560),
         background_color='#020202',
-        frameless=True,       # We use custom titlebar
+        frameless=True,
     )
 
     api = SoftcurseAPI(window)
     window.expose(api.open_file_dialog)
     window.expose(api.open_folder_dialog)
+    window.expose(api.save_file)
+    window.expose(api.save_file_as_dialog)
     window.expose(api.minimize)
     window.expose(api.maximize)
     window.expose(api.close_window)
 
-    # Load CLI files after startup
     cli_files = [p for p in sys.argv[1:] if os.path.isfile(p)]
     if cli_files:
         t = threading.Thread(target=load_cli_files, args=(window, cli_files), daemon=True)

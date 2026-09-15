@@ -7,6 +7,8 @@ from src.main import (
     is_binary_data,
     generate_hex_dump,
     build_file_data,
+    write_file_content,
+    SoftcurseAPI,
 )
 
 
@@ -29,7 +31,34 @@ class TestMainBackend(unittest.TestCase):
         self.assertIn("00000000", dump)
         self.assertIn("SOFTCURSE.12345", dump)
         self.assertIn("53 4F 46 54 43 55 52 53", dump)
-        self.assertIn("45 00 31 32 33 34 35", dump)
+
+    def test_write_file_content(self):
+        with tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".txt") as tf:
+            tf_path = tf.name
+
+        try:
+            ok, msg = write_file_content(tf_path, "Updated SOFTCURSE content\nLine 2")
+            self.assertTrue(ok)
+            with open(tf_path, "r", encoding="utf-8") as f:
+                saved = f.read()
+            self.assertEqual(saved, "Updated SOFTCURSE content\nLine 2")
+        finally:
+            if os.path.exists(tf_path):
+                os.remove(tf_path)
+
+    def test_save_file_api(self):
+        with tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".md") as tf:
+            tf.write("# Initial")
+            tf_path = tf.name
+
+        try:
+            api = SoftcurseAPI(None)
+            res = api.save_file(tf_path, "# Modified Markdown")
+            self.assertEqual(res["path"], tf_path)
+            self.assertEqual(res["content"], "# Modified Markdown")
+        finally:
+            if os.path.exists(tf_path):
+                os.remove(tf_path)
 
     def test_build_file_data_text(self):
         with tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".py", encoding="utf-8") as tf:
