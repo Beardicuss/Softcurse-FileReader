@@ -138,6 +138,13 @@
       flex-shrink: 0;
       position: relative;
       z-index: 100;
+      -webkit-app-region: no-drag !important;
+    }
+
+    #titlebar-drag-area {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
       -webkit-app-region: drag !important;
     }
 
@@ -155,6 +162,8 @@
     @keyframes scan-h { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
 
     #title-logo {
+      position: relative;
+      z-index: 2;
       font-family: var(--font-display);
       font-size: 13px;
       font-weight: 800;
@@ -166,13 +175,18 @@
     }
 
     #title-status {
+      position: relative;
+      z-index: 2;
       font-family: var(--font-mono);
       font-size: 10px;
       color: var(--c-text-muted);
       letter-spacing: 0.06em;
+      -webkit-app-region: no-drag !important;
     }
 
     .title-actions {
+      position: relative;
+      z-index: 2;
       display: flex;
       gap: 8px;
       -webkit-app-region: no-drag !important;
@@ -956,6 +970,7 @@
   <div id="app">
     <!-- Titlebar -->
     <div id="titlebar">
+      <div id="titlebar-drag-area"></div>
       <div id="title-logo">◆ SOFTCURSE SYSTEMS — FILE READER & EDITOR</div>
       <div id="title-status">
         <span id="status-clock">--:--:--</span> &nbsp;·&nbsp;
@@ -1148,6 +1163,15 @@
       untitledCounter: 0,
       recentFiles: JSON.parse(localStorage.getItem('softcurse_recent_files') || '[]'),
     };
+
+    // Prevent text selection from triggering pywebview drag behavior
+    const textContentEl = document.getElementById('text-content');
+    textContentEl.addEventListener('mousedown', e => {
+      e.stopPropagation();
+    });
+    textContentEl.addEventListener('selectstart', e => {
+      e.stopPropagation();
+    });
 
     // ── CLOCK ──
     function updateClock() {
