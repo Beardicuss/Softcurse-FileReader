@@ -40,6 +40,21 @@ class TestMainBackend(unittest.TestCase):
         self.assertEqual(nf["content"], "")
         self.assertFalse(nf["is_binary"])
 
+    def test_read_file_with_encoding_api(self):
+        with tempfile.NamedTemporaryFile(mode="wb+", delete=False, suffix=".ans") as tf:
+            tf.write("BBS ASCII Art".encode("cp437"))
+            tf_path = tf.name
+
+        try:
+            api = SoftcurseAPI(None)
+            res = api.read_file_with_encoding(tf_path, "cp437")
+            self.assertIsNotNone(res)
+            self.assertEqual(res["encoding"], "CP437")
+            self.assertIn("BBS ASCII", res["content"])
+        finally:
+            if os.path.exists(tf_path):
+                os.remove(tf_path)
+
     def test_reload_file_api(self):
         with tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".txt") as tf:
             tf.write("Initial line")

@@ -792,7 +792,7 @@
       background: var(--c-surface-01);
       border: 1px solid var(--c-border);
       padding: 20px;
-      width: 380px;
+      width: 400px;
       box-shadow: var(--glow-accent-lg);
     }
     .modal-title { font-family: var(--font-display); font-size: 14px; color: var(--c-accent); margin-bottom: 12px; }
@@ -841,6 +841,12 @@
     .fade-up { animation: fade-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
     @keyframes scan-sweep { 0% { top: -2px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
     .scan-line-anim { position: absolute; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--c-accent-dim), transparent); pointer-events: none; animation: scan-sweep 6s linear infinite; }
+
+    @media print {
+      #titlebar, #toolbar, #tabs-bar, #sidebar, #statusbar, .scan-line-anim { display: none !important; }
+      body { background: white !important; color: black !important; }
+      #text-content { font-family: monospace !important; font-size: 12pt !important; color: black !important; white-space: pre-wrap !important; }
+    }
   </style>
 </head>
 
@@ -876,6 +882,25 @@
         <button class="tool-btn" onclick="closeReplaceModal()">CANCEL</button>
         <button class="tool-btn" onclick="executeReplaceNext()">REPLACE NEXT</button>
         <button class="tool-btn primary" onclick="executeReplaceAll()">REPLACE ALL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Text Transformations -->
+  <div id="modal-tools" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-title">TEXT TRANSFORMATIONS & TOOLS</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+        <button class="tool-btn" onclick="transformText('uppercase')">UPPERCASE</button>
+        <button class="tool-btn" onclick="transformText('lowercase')">lowercase</button>
+        <button class="tool-btn" onclick="transformText('titlecase')">Title Case</button>
+        <button class="tool-btn" onclick="transformText('sort')">SORT LINES (A-Z)</button>
+        <button class="tool-btn" onclick="transformText('sort-reverse')">SORT LINES (Z-A)</button>
+        <button class="tool-btn" onclick="transformText('trim')">TRIM TRAILING WHITESPACE</button>
+        <button class="tool-btn" onclick="transformText('dedupe')">REMOVE DUPLICATE LINES</button>
+      </div>
+      <div style="display:flex;justify-content:flex-end;">
+        <button class="tool-btn primary" onclick="closeTextToolsModal()">CLOSE</button>
       </div>
     </div>
   </div>
@@ -933,6 +958,16 @@
       <button class="tool-btn" onclick="saveCurrentFileAs()">SAVE AS...</button>
       <button class="tool-btn" onclick="revertCurrentFile()">REVERT</button>
       <div class="toolbar-sep"></div>
+      <select class="select-theme" onchange="changeEncoding(this.value)">
+        <option value="">ENCODING: AUTO</option>
+        <option value="utf-8">UTF-8</option>
+        <option value="cp437">CP437 (DOS/BBS)</option>
+        <option value="latin-1">Latin-1 (ISO-8859-1)</option>
+        <option value="cp1252">CP1252 (Windows)</option>
+        <option value="ascii">ASCII</option>
+        <option value="utf-16">UTF-16</option>
+      </select>
+      <div class="toolbar-sep"></div>
       <button class="tool-btn" id="btn-wrap" onclick="toggleWrap()">WRAP</button>
       <button class="tool-btn active" id="btn-ln" onclick="toggleLineNumbers()">LN NUMS</button>
       <button class="tool-btn" id="btn-hex" onclick="toggleHexView()">HEX VIEW</button>
@@ -944,7 +979,9 @@
       <div class="toolbar-sep"></div>
       <button class="tool-btn" onclick="openReplaceModal()">REPLACE (Ctrl+R)</button>
       <button class="tool-btn" onclick="openJumpModal()">JUMP (Ctrl+G)</button>
+      <button class="tool-btn" onclick="openTextToolsModal()">TEXT TOOLS</button>
       <button class="tool-btn" onclick="openDocStatsModal()">STATS</button>
+      <button class="tool-btn" onclick="printDocument()">PRINT (Ctrl+P)</button>
       <button class="tool-btn" onclick="copyContent()">COPY</button>
       <button class="tool-btn" onclick="closeCurrentTab()">CLOSE TAB</button>
       <div class="toolbar-spacer"></div>
@@ -977,6 +1014,12 @@
           <div class="sidebar-label">◆ Open Files</div>
         </div>
         <div id="file-list"></div>
+
+        <div class="sidebar-header" style="border-top:1px solid var(--c-border);margin-top:8px;">
+          <div class="sidebar-label">◆ Recent Files</div>
+        </div>
+        <div id="recent-file-list" style="max-height:120px;overflow-y:auto;padding:4px 0;"></div>
+
         <div class="sidebar-section" id="file-stats">
           <div class="stat-row"><span class="stat-label">Lines</span><span class="stat-value" id="stat-lines">—</span></div>
           <div class="stat-row"><span class="stat-label">Chars</span><span class="stat-value" id="stat-chars">—</span></div>
@@ -1009,7 +1052,7 @@
             </button>
           </div>
           <div style="font-family:var(--font-tactical);font-size:11px;letter-spacing:0.15em;color:var(--c-text-ghost);text-transform:uppercase;">
-            Full editing, writing, fixing, find/replace & saving capabilities built-in
+            Full editing, writing, fixing, text transformations, print & auto-save recovery
           </div>
           <div class="welcome-formats">
             <span class="format-tag">.txt</span><span class="format-tag">.md</span><span class="format-tag">.py</span><span class="format-tag">.js</span><span class="format-tag">.ts</span><span class="format-tag">.html</span><span class="format-tag">.css</span><span class="format-tag">.json</span><span class="format-tag">.xml</span><span class="format-tag">.yaml</span><span class="format-tag">.csv</span><span class="format-tag">.sql</span><span class="format-tag">.sh</span><span class="format-tag">.bat</span><span class="format-tag">.bin (hex)</span><span class="format-tag">+ 100 more</span>
@@ -1078,6 +1121,7 @@
       matchIndices: [],
       currentMatchIdx: -1,
       untitledCounter: 0,
+      recentFiles: JSON.parse(localStorage.getItem('softcurse_recent_files') || '[]'),
     };
 
     // ── CLOCK ──
@@ -1086,6 +1130,39 @@
       document.getElementById('status-clock').textContent = n.toTimeString().slice(0, 8);
     }
     setInterval(updateClock, 1000); updateClock();
+
+    // ── RECENT FILES HISTORY ──
+    function addRecentFile(path) {
+      if (!path || path.startsWith('Untitled')) return;
+      state.recentFiles = state.recentFiles.filter(p => p !== path);
+      state.recentFiles.unshift(path);
+      if (state.recentFiles.length > 10) state.recentFiles.pop();
+      localStorage.setItem('softcurse_recent_files', JSON.stringify(state.recentFiles));
+      renderRecentFiles();
+    }
+
+    function renderRecentFiles() {
+      const list = document.getElementById('recent-file-list');
+      if (!list) return;
+      list.innerHTML = '';
+      state.recentFiles.forEach(p => {
+        const name = p.split(/[/\\]/).pop();
+        const el = document.createElement('div');
+        el.className = 'file-item';
+        el.innerHTML = `<span class="file-item-icon">🕒</span><span class="file-item-name" title="${escapeHtml(p)}">${escapeHtml(name)}</span>`;
+        el.addEventListener('click', () => openRecentFilePath(p));
+        list.appendChild(el);
+      });
+    }
+
+    function openRecentFilePath(path) {
+      if (window.pywebview) {
+        pywebview.api.reload_file(path).then(res => {
+          if (res) addTab(res);
+          else showToast('COULD NOT OPEN RECENT FILE', 'error');
+        });
+      }
+    }
 
     // ── DRAG & DROP ──
     const dropOv = document.getElementById('drop-overlay');
@@ -1170,6 +1247,29 @@
       }
     }
 
+    // ── CHANGE ENCODING ──
+    function changeEncoding(encoding) {
+      const tab = getCurrentTab();
+      if (!tab || !encoding) return;
+
+      if (window.pywebview && tab.path && !tab.path.startsWith('Untitled')) {
+        pywebview.api.read_file_with_encoding(tab.path, encoding).then(res => {
+          if (res) {
+            tab.rawContent = res.content;
+            tab.encoding = res.encoding;
+            tab.isDirty = false;
+            renderTabs();
+            renderContent(tab);
+            showToast('◆ RE-OPENED WITH ' + encoding.toUpperCase(), 'success');
+          }
+        });
+      } else {
+        tab.encoding = encoding.toUpperCase();
+        updateFileStats(tab);
+        showToast('◆ ENCODING SET TO ' + encoding.toUpperCase(), 'success');
+      }
+    }
+
     // ── PYTHON BRIDGE CALLS ──
     function openFileDialog() {
       if (window.pywebview) {
@@ -1204,12 +1304,13 @@
       const currentText = tc.innerText;
 
       if (window.pywebview) {
-        pywebview.api.save_file(tab.path, currentText).then(res => {
+        pywebview.api.save_file(tab.path, currentText, tab.encoding || 'utf-8').then(res => {
           if (res && res.path) {
             tab.path = res.path;
             tab.name = res.name;
             tab.rawContent = currentText;
             tab.isDirty = false;
+            addRecentFile(tab.path);
             renderTabs();
             updateFileStats(tab);
             showToast('◆ SAVED: ' + tab.name, 'success');
@@ -1236,13 +1337,14 @@
       const currentText = tc.innerText;
 
       if (window.pywebview) {
-        pywebview.api.save_file_as_dialog(currentText, tab.name).then(res => {
+        pywebview.api.save_file_as_dialog(currentText, tab.name, tab.encoding || 'utf-8').then(res => {
           if (res && res.path) {
             tab.path = res.path;
             tab.name = res.name;
             tab.ext = res.ext;
             tab.rawContent = currentText;
             tab.isDirty = false;
+            addRecentFile(tab.path);
             renderTabs();
             updateFileStats(tab);
             showToast('◆ SAVED AS: ' + tab.name, 'success');
@@ -1284,6 +1386,7 @@
         type
       };
       state.tabs.push(tab);
+      addRecentFile(tab.path);
       renderTabs();
       activateTab(id);
       showToast('◆ LOADED: ' + tab.name, 'success');
@@ -1429,9 +1532,17 @@
           }
           renderLineNumbers(newText);
           updateFileStats(tab);
+          saveDraftAuto();
         }
       });
     });
+
+    function saveDraftAuto() {
+      const tab = getCurrentTab();
+      if (tab) {
+        localStorage.setItem(`softcurse_draft_${tab.name}`, tab.rawContent);
+      }
+    }
 
     function showWelcome() {
       document.getElementById('welcome').style.display = 'flex';
@@ -1535,6 +1646,54 @@
     function changeTheme(themeName) {
       document.documentElement.setAttribute('data-theme', themeName);
       showToast('THEME: ' + themeName.toUpperCase(), 'success');
+    }
+
+    function printDocument() {
+      const tab = getCurrentTab();
+      if (!tab) return;
+      window.print();
+    }
+
+    // ── TEXT TRANSFORMATIONS ──
+    function openTextToolsModal() {
+      if (!getCurrentTab()) return;
+      document.getElementById('modal-tools').classList.add('active');
+    }
+    function closeTextToolsModal() {
+      document.getElementById('modal-tools').classList.remove('active');
+    }
+    function transformText(action) {
+      const tab = getCurrentTab();
+      if (!tab) return;
+      let text = tab.rawContent;
+
+      if (action === 'uppercase') {
+        text = text.toUpperCase();
+      } else if (action === 'lowercase') {
+        text = text.toLowerCase();
+      } else if (action === 'titlecase') {
+        text = text.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+      } else if (action === 'sort') {
+        text = text.split('\n').sort().join('\n');
+      } else if (action === 'sort-reverse') {
+        text = text.split('\n').sort().reverse().join('\n');
+      } else if (action === 'trim') {
+        text = text.split('\n').map(line => line.trimEnd()).join('\n');
+      } else if (action === 'dedupe') {
+        const seen = new Set();
+        text = text.split('\n').filter(line => {
+          if (seen.has(line)) return false;
+          seen.add(line);
+          return true;
+        }).join('\n');
+      }
+
+      tab.rawContent = text;
+      tab.isDirty = true;
+      renderTabs();
+      renderContent(tab);
+      closeTextToolsModal();
+      showToast('◆ TEXT TRANSFORMED', 'success');
     }
 
     // ── MODAL HANDLERS ──
@@ -1728,7 +1887,8 @@
 
     document.addEventListener('keydown', e => {
       if (e.ctrlKey || e.metaKey) {
-        if (e.key === 'n' || e.key === 'N') { e.preventDefault(); createNewBlankTab(); }
+        if (e.key === 'p' || e.key === 'P') { e.preventDefault(); printDocument(); }
+        else if (e.key === 'n' || e.key === 'N') { e.preventDefault(); createNewBlankTab(); }
         else if (e.key === 'r' || e.key === 'R') { e.preventDefault(); openReplaceModal(); }
         else if (e.shiftKey && (e.key === 's' || e.key === 'S')) { e.preventDefault(); saveCurrentFileAs(); }
         else if (e.key === 's' || e.key === 'S') { e.preventDefault(); saveCurrentFile(); }
@@ -1745,6 +1905,7 @@
         closeJumpModal();
         closeReplaceModal();
         closeStatsModal();
+        closeTextToolsModal();
       }
     });
 
@@ -1766,6 +1927,8 @@
       t.className = 'show' + (type ? ' ' + type : '');
       setTimeout(() => { t.className = ''; }, 3000);
     }
+
+    renderRecentFiles();
 
     window.addEventListener('pywebviewready', () => {
       window.loadFileFromPython = function (fileData) { addTab(fileData); };

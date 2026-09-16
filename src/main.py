@@ -112,8 +112,15 @@ def generate_hex_dump(data_bytes):
     return '\n'.join(lines)
 
 
-def read_text_file(path):
-    """Try reading a file with multiple encodings starting with UTF-8 fast-path."""
+def read_text_file(path, force_encoding=None):
+    """Try reading a file with multiple encodings or a forced specified encoding."""
+    if force_encoding:
+        try:
+            with open(path, 'r', encoding=force_encoding, errors='replace') as f:
+                return f.read(), force_encoding
+        except Exception:
+            return None, None
+
     try:
         with open(path, 'r', encoding='utf-8') as f:
             return f.read(), 'utf-8'
@@ -156,7 +163,7 @@ def create_new_file_data(filename='Untitled.txt'):
     }
 
 
-def build_file_data(path):
+def build_file_data(path, force_encoding=None):
     """Build a dict with file info for the frontend."""
     name = os.path.basename(path)
     ext = get_file_ext(path)
@@ -191,7 +198,7 @@ def build_file_data(path):
             'hex_dump': '',
         }
 
-    is_bin = is_binary_data(raw_sample)
+    is_bin = is_binary_data(raw_sample) if not force_encoding else False
     hex_dump = generate_hex_dump(full_raw)
     if len(full_raw) < size:
         hex_dump += f'\n\n[HEX VIEW TRUNCATED AT {MAX_HEX_BYTES // 1024} KB — FILE SIZE: {size} BYTES]'
@@ -208,7 +215,7 @@ def build_file_data(path):
             'hex_dump': hex_dump,
         }
 
-    content, enc = read_text_file(path)
+    content, enc = read_text_file(path, force_encoding=force_encoding)
     if content is None:
         return {
             'name': name,
@@ -242,9 +249,14 @@ class SoftcurseAPI:
     def create_new_file(self, filename='Untitled.txt'):
         return create_new_file_data(filename)
 
-    def reload_file(self, path):
+    def reload_file(self, path, force_encoding=None):
         if path and os.path.exists(path):
-            return build_file_data(path)
+            return build_file_data(path, force_encoding=force_encoding)
+        return None
+
+    def read_file_with_encoding(self, path, encoding):
+        if path and os.path.exists(path):
+            return build_file_data(path, force_encoding=encoding)
         return None
 
     def open_file_dialog(self):
@@ -288,16 +300,16 @@ class SoftcurseAPI:
             print(f'Folder read error: {e}')
         return results[:50]
 
-    def save_file(self, path, content):
+    def save_file(self, path, content, encoding='utf-8'):
         """Save content back to existing file path."""
         if not path or not os.path.exists(path):
             return self.save_file_as_dialog(content, os.path.basename(path or 'untitled.txt'))
-        success, msg = write_file_content(path, content)
+        success, msg = write_file_content(path, content, encoding=encoding)
         if success:
-            return build_file_data(path)
+            return build_file_data(path, force_encoding=encoding)
         return {'error': msg}
 
-    def save_file_as_dialog(self, content, default_name='untitled.txt'):
+    def save_file_as_dialog(self, content, default_name='untitled.txt', encoding='utf-8'):
         """Open Save As dialog and save file."""
         if not webview or not self._window:
             return {'error': 'Window not available'}
@@ -308,9 +320,9 @@ class SoftcurseAPI:
         if not save_path:
             return {'cancelled': True}
         path = save_path[0] if isinstance(save_path, (list, tuple)) else save_path
-        success, msg = write_file_content(path, content)
+        success, msg = write_file_content(path, content, encoding=encoding)
         if success:
-            return build_file_data(path)
+            return build_file_data(path, force_encoding=encoding)
         return {'error': msg}
 
     def minimize(self):
@@ -364,6 +376,7 @@ def main():
     api = SoftcurseAPI(window)
     window.expose(api.create_new_file)
     window.expose(api.reload_file)
+    window.expose(api.read_file_with_encoding)
     window.expose(api.open_file_dialog)
     window.expose(api.open_folder_dialog)
     window.expose(api.save_file)
