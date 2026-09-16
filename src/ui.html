@@ -124,6 +124,7 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
+      -webkit-app-region: no-drag !important;
     }
 
     #titlebar {
@@ -137,7 +138,7 @@
       flex-shrink: 0;
       position: relative;
       z-index: 100;
-      -webkit-app-region: drag;
+      -webkit-app-region: drag !important;
     }
 
     #titlebar::after {
@@ -161,7 +162,7 @@
       color: var(--c-accent);
       text-shadow: var(--glow-accent);
       text-transform: uppercase;
-      -webkit-app-region: no-drag;
+      -webkit-app-region: no-drag !important;
     }
 
     #title-status {
@@ -174,7 +175,7 @@
     .title-actions {
       display: flex;
       gap: 8px;
-      -webkit-app-region: no-drag;
+      -webkit-app-region: no-drag !important;
     }
 
     .title-btn {
@@ -190,6 +191,7 @@
       justify-content: center;
       cursor: pointer;
       transition: var(--transition);
+      -webkit-app-region: no-drag !important;
     }
 
     .title-btn:hover {
@@ -208,6 +210,7 @@
       border-bottom: 1px solid var(--c-border);
       flex-shrink: 0;
       overflow-x: auto;
+      -webkit-app-region: no-drag !important;
     }
 
     .tool-btn {
@@ -227,6 +230,7 @@
       cursor: pointer;
       transition: var(--transition);
       white-space: nowrap;
+      -webkit-app-region: no-drag !important;
     }
 
     .tool-btn:hover {
@@ -279,6 +283,7 @@
       background: rgba(0, 255, 255, 0.02);
       height: 30px;
       transition: var(--transition);
+      -webkit-app-region: no-drag !important;
     }
 
     #search-wrap:focus-within {
@@ -300,6 +305,8 @@
       color: var(--c-text);
       width: 160px;
       caret-color: var(--c-accent);
+      user-select: text !important;
+      -webkit-app-region: no-drag !important;
     }
 
     #search-input::placeholder { color: var(--c-text-ghost); }
@@ -314,6 +321,7 @@
       padding: 0 8px;
       outline: none;
       cursor: pointer;
+      -webkit-app-region: no-drag !important;
     }
 
     #tabs-bar {
@@ -327,6 +335,7 @@
       flex-shrink: 0;
       overflow-x: auto;
       overflow-y: hidden;
+      -webkit-app-region: no-drag !important;
     }
 
     .tab {
@@ -348,6 +357,7 @@
       white-space: nowrap;
       flex-shrink: 0;
       position: relative;
+      -webkit-app-region: no-drag !important;
     }
 
     .tab:hover {
@@ -405,6 +415,7 @@
       display: flex;
       flex: 1;
       overflow: hidden;
+      -webkit-app-region: no-drag !important;
     }
 
     #sidebar {
@@ -415,6 +426,7 @@
       display: flex;
       flex-direction: column;
       transition: var(--transition);
+      -webkit-app-region: no-drag !important;
     }
 
     .sidebar-header {
@@ -445,6 +457,7 @@
       cursor: pointer;
       transition: var(--transition);
       border-left: 2px solid transparent;
+      -webkit-app-region: no-drag !important;
     }
 
     .file-item:hover {
@@ -477,6 +490,7 @@
       flex-direction: column;
       overflow: hidden;
       position: relative;
+      -webkit-app-region: no-drag !important;
     }
 
     #welcome {
@@ -538,6 +552,7 @@
       transition: var(--transition);
       position: relative;
       overflow: hidden;
+      -webkit-app-region: no-drag !important;
     }
 
     .welcome-btn:hover {
@@ -615,6 +630,7 @@
       display: none;
       flex-direction: column;
       overflow: hidden;
+      -webkit-app-region: no-drag !important;
     }
 
     #file-viewer.active { display: flex; }
@@ -627,6 +643,7 @@
       background: var(--c-surface-01);
       border-bottom: 1px solid var(--c-border);
       flex-shrink: 0;
+      -webkit-app-region: no-drag !important;
     }
 
     .file-meta { display: flex; align-items: center; gap: 12px; }
@@ -652,6 +669,7 @@
       flex: 1;
       display: flex;
       overflow: hidden;
+      -webkit-app-region: no-drag !important;
     }
 
     #line-numbers {
@@ -667,6 +685,7 @@
       line-height: 1.6;
       color: rgba(0, 255, 255, 0.25);
       text-align: right;
+      -webkit-app-region: no-drag !important;
     }
 
     .line-num { padding-right: 12px; display: block; }
@@ -684,8 +703,9 @@
       overflow-wrap: anywhere;
       tab-size: 4;
       caret-color: var(--c-accent);
-      user-select: text;
+      user-select: text !important;
       outline: none;
+      -webkit-app-region: no-drag !important;
     }
 
     #text-content::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -756,6 +776,7 @@
       border-top: 1px solid var(--c-border);
       flex-shrink: 0;
       overflow: hidden;
+      -webkit-app-region: no-drag !important;
     }
 
     .status-segment {
@@ -786,6 +807,7 @@
       display: none;
       align-items: center;
       justify-content: center;
+      -webkit-app-region: no-drag !important;
     }
     .modal-overlay.active { display: flex; }
     .modal-box {
@@ -794,6 +816,7 @@
       padding: 20px;
       width: 400px;
       box-shadow: var(--glow-accent-lg);
+      -webkit-app-region: no-drag !important;
     }
     .modal-title { font-family: var(--font-display); font-size: 14px; color: var(--c-accent); margin-bottom: 12px; }
     .modal-input {
@@ -806,6 +829,8 @@
       padding: 8px;
       outline: none;
       margin-bottom: 12px;
+      user-select: text !important;
+      -webkit-app-region: no-drag !important;
     }
 
     #toast {
