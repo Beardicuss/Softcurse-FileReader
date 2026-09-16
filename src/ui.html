@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SOFTCURSE/SYS — FILE READER & EDITOR v1.0</title>
+  <title>SOFTCURSE SYSTEMS — FILE READER & EDITOR v1.0</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap"
@@ -80,7 +80,6 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      cursor: none !important;
     }
 
     html,
@@ -118,38 +117,6 @@
       background-size: 256px 256px;
       mix-blend-mode: overlay;
     }
-
-    #cursor {
-      position: fixed;
-      top: 0;
-      left: 0;
-      pointer-events: none;
-      z-index: 9999;
-      will-change: left, top;
-      transform: translate(-6px, -5px);
-    }
-
-    #cursor svg {
-      overflow: visible;
-      filter: drop-shadow(0 0 4px var(--c-accent)) drop-shadow(0 0 12px rgba(0, 255, 255, 0.3));
-      transition: filter 0.1s ease;
-    }
-
-    body.clicking #cursor svg {
-      filter: drop-shadow(0 0 6px #39ff14) drop-shadow(0 0 18px #39ff1466);
-    }
-
-    #s-idle { opacity: 1; transition: opacity 0.2s; }
-    #s-move { opacity: 0; transition: opacity 0.2s; }
-    #s-click { opacity: 0; transition: opacity 0.08s; }
-
-    body.moving #s-idle { opacity: 0; }
-    body.moving #s-move { opacity: 1; }
-    body.moving #s-click { opacity: 0; }
-
-    body.clicking #s-idle { opacity: 0; }
-    body.clicking #s-move { opacity: 0; }
-    body.clicking #s-click { opacity: 1; }
 
     #app {
       position: relative;
@@ -221,7 +188,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: none;
+      cursor: pointer;
       transition: var(--transition);
     }
 
@@ -257,7 +224,7 @@
       font-weight: 600;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      cursor: none;
+      cursor: pointer;
       transition: var(--transition);
       white-space: nowrap;
     }
@@ -346,6 +313,7 @@
       height: 30px;
       padding: 0 8px;
       outline: none;
+      cursor: pointer;
     }
 
     #tabs-bar {
@@ -375,7 +343,7 @@
       font-size: 12px;
       font-weight: 500;
       letter-spacing: 0.06em;
-      cursor: none;
+      cursor: pointer;
       transition: var(--transition);
       white-space: nowrap;
       flex-shrink: 0;
@@ -474,7 +442,7 @@
       align-items: center;
       gap: 10px;
       padding: 7px 16px;
-      cursor: none;
+      cursor: pointer;
       transition: var(--transition);
       border-left: 2px solid transparent;
     }
@@ -566,7 +534,7 @@
       font-weight: 700;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      cursor: none;
+      cursor: pointer;
       transition: var(--transition);
       position: relative;
       overflow: hidden;
@@ -878,36 +846,11 @@
 
 <body>
 
-  <!-- Cursor -->
-  <div id="cursor">
-    <svg width="40" height="38" viewBox="0 0 40 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
-          <feGaussianBlur stdDeviation="1.5" result="b1" />
-          <feGaussianBlur stdDeviation="4" result="b2" />
-          <feMerge>
-            <feMergeNode in="b2" />
-            <feMergeNode in="b1" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-        <clipPath id="clip">
-          <polygon points="6,5 35,11 15,34" />
-        </clipPath>
-      </defs>
-
-      <polygon points="6,5 35,11 15,34" fill="#071418" stroke="var(--c-accent)" stroke-width="1.4" stroke-linejoin="round" filter="url(#glow)" />
-      <text id="s-idle" x="18" y="17" text-anchor="middle" dominant-baseline="middle" font-family="Orbitron, monospace" font-size="10" font-weight="900" fill="#0d2a30" transform="rotate(-45, 18, 17)" clip-path="url(#clip)">S</text>
-      <text id="s-move" x="18" y="17" text-anchor="middle" dominant-baseline="middle" font-family="Orbitron, monospace" font-size="10" font-weight="900" fill="var(--c-accent)" filter="url(#glow)" transform="rotate(-45, 18, 17)" clip-path="url(#clip)">S</text>
-      <text id="s-click" x="18" y="17" text-anchor="middle" dominant-baseline="middle" font-family="Orbitron, monospace" font-size="10" font-weight="900" fill="#39ff14" filter="url(#glow)" transform="rotate(-45, 18, 17)" clip-path="url(#clip)">S</text>
-    </svg>
-  </div>
-
   <!-- Drop Overlay -->
   <div id="drop-overlay">
     <div class="drop-box">
       <div class="drop-title">◆ DROP FILES HERE</div>
-      <div class="drop-sub">Release to open in SOFTCURSE reader & editor</div>
+      <div class="drop-sub">Release to open in SOFTCURSE SYSTEMS reader & editor</div>
     </div>
   </div>
 
@@ -963,7 +906,7 @@
   <div id="app">
     <!-- Titlebar -->
     <div id="titlebar">
-      <div id="title-logo">◆ SOFTCURSE/SYS — FILE READER & EDITOR</div>
+      <div id="title-logo">◆ SOFTCURSE SYSTEMS — FILE READER & EDITOR</div>
       <div id="title-status">
         <span id="status-clock">--:--:--</span> &nbsp;·&nbsp;
         <span>BUILD v1.0.0</span>
@@ -1050,7 +993,7 @@
         <!-- Welcome -->
         <div id="welcome" class="fade-up">
           <div class="welcome-glow"></div>
-          <div class="welcome-logo">SOFTCURSE FILE READER</div>
+          <div class="welcome-logo">SOFTCURSE SYSTEMS</div>
           <div class="welcome-sub">◆ UNIVERSAL TEXT FILE & EDITING SYSTEM · v1.0.0 ◆</div>
           <div class="welcome-actions">
             <button class="welcome-btn" onclick="createNewBlankTab()">
@@ -1119,7 +1062,7 @@
       </div>
       <div class="status-spacer"></div>
       <div class="status-segment">
-        <span class="status-label">SOFTCURSE/SYS</span>
+        <span class="status-label">SOFTCURSE SYSTEMS</span>
         <span class="blink-cursor">█</span>
       </div>
     </div>
@@ -1136,29 +1079,6 @@
       currentMatchIdx: -1,
       untitledCounter: 0,
     };
-
-    // ── CURSOR ──
-    const cursor = document.getElementById('cursor');
-    let mx = 0, my = 0, cx = 0, cy = 0;
-    let moveTimer = null;
-
-    (function tick() {
-      cx += (mx - cx) * 0.22;
-      cy += (my - cy) * 0.22;
-      if (cursor) { cursor.style.left = cx + 'px'; cursor.style.top = cy + 'px'; }
-      requestAnimationFrame(tick);
-    })();
-
-    document.addEventListener('mousemove', e => {
-      mx = e.clientX; my = e.clientY;
-      document.body.classList.add('moving');
-      document.body.classList.remove('clicking');
-      clearTimeout(moveTimer);
-      moveTimer = setTimeout(() => document.body.classList.remove('moving'), 150);
-    });
-
-    document.addEventListener('mousedown', () => document.body.classList.add('clicking'));
-    document.addEventListener('mouseup', () => document.body.classList.remove('clicking'));
 
     // ── CLOCK ──
     function updateClock() {

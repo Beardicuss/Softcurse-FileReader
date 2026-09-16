@@ -1,5 +1,5 @@
 """
-SOFTCURSE FILE READER — v1.0.0
+SOFTCURSE SYSTEMS FILE READER & EDITOR — v1.0.0
 Universal Text File Viewer & Editor — Python + pywebview
 """
 
@@ -352,7 +352,7 @@ def main():
     html_path = get_html_path()
     
     window = webview.create_window(
-        title='SOFTCURSE FILE READER & EDITOR v1.0',
+        title='SOFTCURSE SYSTEMS FILE READER & EDITOR v1.0',
         url=f'file:///{html_path}' if sys.platform == 'win32' else html_path,
         width=1280,
         height=800,
